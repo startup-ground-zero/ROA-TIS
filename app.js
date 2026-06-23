@@ -129,6 +129,107 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // --- Revenue Trajectories Chart ---
+    const ctxRevenue = document.getElementById('revenueChart');
+    if (ctxRevenue) {
+        new Chart(ctxRevenue, {
+            type: 'line',
+            data: {
+                labels: ['2026', '2028', '2030', '2032', '2034', '2036', '2038', '2040', '2041'],
+                datasets: [
+                    {
+                        label: 'Conservative',
+                        data: [0.2, 1.5, 5, 12, 22, 35, 50, 65, 72],
+                        borderColor: '#8899a6',
+                        backgroundColor: 'rgba(136, 153, 166, 0.05)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Moderate',
+                        data: [0.3, 2.5, 10, 25, 42, 60, 80, 95, 105],
+                        borderColor: '#4ecdc4',
+                        backgroundColor: 'rgba(78, 205, 196, 0.05)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Ambitious',
+                        data: [0.5, 4, 18, 40, 65, 95, 120, 140, 155],
+                        borderColor: '#f7b731',
+                        backgroundColor: 'rgba(247, 183, 49, 0.05)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Transformational',
+                        data: [0.8, 6, 28, 60, 100, 145, 190, 235, 260],
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.05)',
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2.5,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#8899a6', boxWidth: 12, padding: 16, font: { size: 11 } }
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#8899a6' }, grid: { color: '#1e2730' } },
+                    y: {
+                        ticks: {
+                            color: '#8899a6',
+                            callback: function(v) { return '€' + v + 'M'; }
+                        },
+                        grid: { color: '#1e2730' }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- Capital Scenarios Chart ---
+    const ctxCapital = document.getElementById('capitalChart');
+    if (ctxCapital) {
+        new Chart(ctxCapital, {
+            type: 'bar',
+            data: {
+                labels: ['Conservative', 'Moderate', 'Ambitious', 'Transformational'],
+                datasets: [{
+                    label: 'Capital Requirement (€M)',
+                    data: [3, 8, 24, 70],
+                    backgroundColor: ['rgba(136, 153, 166, 0.6)', 'rgba(78, 205, 196, 0.6)', 'rgba(247, 183, 49, 0.6)', 'rgba(255, 107, 107, 0.6)'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { ticks: { color: '#8899a6' }, grid: { display: false } },
+                    y: {
+                        ticks: {
+                            color: '#8899a6',
+                            callback: function(v) { return '€' + v + 'M'; }
+                        },
+                        grid: { color: '#1e2730' }
+                    }
+                }
+            }
+        });
+    }
 });
 
 // ===== MOCK INTERACTIONS =====

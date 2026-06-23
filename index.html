@@ -19,6 +19,7 @@
             <button class="nav-tab active" data-view="dashboard">Authority Dashboard</button>
             <button class="nav-tab" data-view="farmer">Farmer Portal</button>
             <button class="nav-tab" data-view="engines">Engine View</button>
+            <button class="nav-tab" data-view="investor">Investor &amp; Commercial</button>
         </div>
         <div class="nav-meta">
             <span class="meta-roa">ROA: Elysian EVOO</span>
@@ -463,6 +464,353 @@ All weights from: ROA_Control_Center / Systemic_Parameter_Weights
 All inputs from:  Data_Entry sheet, row ROA-ELY-2025
                 </pre>
             </div>
+        </div>
+    </div>
+
+    <!-- ========== INVESTOR & COMMERCIAL ========== -->
+    <div id="view-investor" class="view">
+        <div class="investor-layout">
+            <!-- Hero KPIs -->
+            <div class="investor-hero">
+                <h2 class="investor-title">ROA-TIS — Investor &amp; Commercial Intelligence</h2>
+                <p class="investor-subtitle">Territorial Intelligence as Infrastructure — Executive Business Plan Summary</p>
+            </div>
+
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-label">Seed Round Target</div>
+                    <div class="kpi-value good">€350K</div>
+                    <div class="kpi-trend neutral">SAFE / Early-Stage Instrument</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Pre-Money Valuation Cap</div>
+                    <div class="kpi-value good">€2.8M</div>
+                    <div class="kpi-trend neutral">18-month deployment</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Moderate Capital Scenario</div>
+                    <div class="kpi-value warning">€8.0M</div>
+                    <div class="kpi-trend neutral">Western Greece + Mediterranean</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Transformational Scenario</div>
+                    <div class="kpi-value good">€70.0M</div>
+                    <div class="kpi-trend up">Multi-country deployment</div>
+                </div>
+            </div>
+
+            <!-- Revenue Trajectories Chart -->
+            <div class="panel">
+                <h2 class="panel-title">Revenue Trajectories — 2026–2041 (Four Scenarios)</h2>
+                <canvas id="revenueChart"></canvas>
+            </div>
+
+            <!-- Two Column: Commercial Architecture + Pricing -->
+            <div class="two-col">
+                <div class="panel">
+                    <h2 class="panel-title">Commercial Architecture</h2>
+                    <table class="command-table">
+                        <thead>
+                            <tr>
+                                <th>Layer</th>
+                                <th>Offering Type</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Products</strong></td>
+                                <td>Assessments, diagnostics, reports</td>
+                                <td>One-off entry points &amp; decisions</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Services</strong></td>
+                                <td>Observatories &amp; intelligence services</td>
+                                <td>Recurring institutional value</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Platforms</strong></td>
+                                <td>Governance &amp; Intelligence Platform, Territorial OS</td>
+                                <td>Long-duration contracts &amp; capability</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="product-list">
+                        <h3 class="section-subtitle">Product Portfolio</h3>
+                        <div class="product-item">
+                            <span class="product-name">ROA Assessment</span>
+                            <span class="product-type">One-off deliverable</span>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">RTI Assessment</span>
+                            <span class="product-type">One-off deliverable</span>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">EROAM Assessment</span>
+                            <span class="product-type">One-off deliverable</span>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Risk Intelligence Report</span>
+                            <span class="product-type">One-off deliverable</span>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Territorial Observatory</span>
+                            <span class="product-type">Recurring service</span>
+                        </div>
+                        <div class="product-item">
+                            <span class="product-name">Governance Platform</span>
+                            <span class="product-type">Platform contract</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2 class="panel-title">Five-Layer Pricing Architecture</h2>
+                    <div class="pricing-layers">
+                        <div class="pricing-layer free">
+                            <div class="pricing-layer-header">
+                                <span class="pricing-icon">🌱</span>
+                                <h4>Ecozen Participation</h4>
+                            </div>
+                            <p>Free — Community observation, local knowledge, stewardship data. Builds territorial evidence base.</p>
+                        </div>
+                        <div class="pricing-layer tier1">
+                            <div class="pricing-layer-header">
+                                <span class="pricing-icon">📊</span>
+                                <h4>Intelligence Products</h4>
+                            </div>
+                            <p>One-off — ROA, RTI, EROAM assessments, risk reports. Decision instruments for entry.</p>
+                        </div>
+                        <div class="pricing-layer tier2">
+                            <div class="pricing-layer-header">
+                                <span class="pricing-icon">🔭</span>
+                                <h4>Recurring Intelligence Services</h4>
+                            </div>
+                            <p>Annual — Territorial observatories, continuous monitoring, intelligence dashboards.</p>
+                        </div>
+                        <div class="pricing-layer tier3">
+                            <div class="pricing-layer-header">
+                                <span class="pricing-icon">🏛️</span>
+                                <h4>Professional Services</h4>
+                            </div>
+                            <p>Project-based — Governance consulting, integration, custom territorial analysis.</p>
+                        </div>
+                        <div class="pricing-layer tier4">
+                            <div class="pricing-layer-header">
+                                <span class="pricing-icon">🔐</span>
+                                <h4>Enterprise &amp; Institutional Licensing</h4>
+                            </div>
+                            <p>Multi-year — Full platform deployment, territorial OS licensing, sovereign data infrastructure.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Purchasing Capacity -->
+            <div class="panel">
+                <h2 class="panel-title">Customer Purchasing Capacity — Territorial Intelligence</h2>
+                <div class="two-col">
+                    <table class="command-table">
+                        <thead>
+                            <tr><th>Customer Category</th><th>Annual Spend Range</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Municipality</td><td>€20K – €2M</td></tr>
+                            <tr><td>City</td><td>€250K – €5M</td></tr>
+                            <tr><td>Region</td><td>€1M – €20M+</td></tr>
+                            <tr><td>Watershed Authority</td><td>€250K – €5M</td></tr>
+                            <tr><td>Protected Area Authority</td><td>€100K – €3M</td></tr>
+                            <tr><td>Utility Operator</td><td>€500K – €50M+</td></tr>
+                        </tbody>
+                    </table>
+                    <table class="command-table">
+                        <thead>
+                            <tr><th>Enterprise Customer</th><th>Annual Spend Range</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Insurance Company</td><td>€1M – €100M+</td></tr>
+                            <tr><td>Reinsurance Company</td><td>€10M – €500M+</td></tr>
+                            <tr><td>Strategic Consulting Firm</td><td>€100K – €10M+</td></tr>
+                            <tr><td>Fortune 500 Corporation</td><td>€1M – €100M+</td></tr>
+                            <tr><td>Sovereign / Institutional Investor</td><td>€5M – €50M+</td></tr>
+                            <tr><td>National Government</td><td>€10M – €500M+</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Return Logic + Capital Scenarios -->
+            <div class="two-col">
+                <div class="panel">
+                    <h2 class="panel-title">Three Return Classes</h2>
+                    <div class="return-classes">
+                        <div class="return-class investor-return">
+                            <h4>📈 Strategic Investors</h4>
+                            <p class="return-principal">Revenue growth, recurring contracts, EBITDA</p>
+                            <p class="return-evidence">ARR, renewal, concentration, cash generation</p>
+                        </div>
+                        <div class="return-class institution-return">
+                            <h4>🏛️ Public Institutions</h4>
+                            <p class="return-principal">Better decisions, lower fragmentation, avoided costs</p>
+                            <p class="return-evidence">Public ROI, risk reduction, implementation</p>
+                        </div>
+                        <div class="return-class territory-return">
+                            <h4>🌍 Territorial Communities</h4>
+                            <p class="return-principal">Participation, stewardship, local knowledge recognition</p>
+                            <p class="return-evidence">Ecozen activity, CCA, quality &amp; stewardship indicators</p>
+                        </div>
+                        <div class="return-class ecosystem-return">
+                            <h4>🌿 Ecosystems</h4>
+                            <p class="return-principal">Earlier intervention, regenerative management</p>
+                            <p class="return-evidence">Biodiversity, soil, water, carbon, resilience indicators</p>
+                        </div>
+                        <div class="return-class mission-return">
+                            <h4>💰 Mission Capital / Dev Finance</h4>
+                            <p class="return-principal">Long-term public value and adaptation capacity</p>
+                            <p class="return-evidence">RROI, futures cost avoidance, territorial-capital indicators</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2 class="panel-title">Capital Architecture by Scenario</h2>
+                    <canvas id="capitalChart"></canvas>
+                    <div class="capital-table">
+                        <div class="capital-row">
+                            <span class="capital-scenario">Conservative</span>
+                            <span class="capital-amount">€3.0M</span>
+                            <span class="capital-scope">Lean reference, limited growth</span>
+                        </div>
+                        <div class="capital-row">
+                            <span class="capital-scenario">Moderate</span>
+                            <span class="capital-amount">€8.0M</span>
+                            <span class="capital-scope">W. Greece + Mediterranean preparation</span>
+                        </div>
+                        <div class="capital-row">
+                            <span class="capital-scenario">Ambitious</span>
+                            <span class="capital-amount">€24.0M</span>
+                            <span class="capital-scope">Mediterranean + European delivery</span>
+                        </div>
+                        <div class="capital-row">
+                            <span class="capital-scenario">Transformational</span>
+                            <span class="capital-amount">€70.0M</span>
+                            <span class="capital-scope">Infrastructure partnerships, multi-country</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ecozen Value Chain -->
+            <div class="panel">
+                <h2 class="panel-title">Ecozen Credit → Territorial Intelligence Emergence</h2>
+                <div class="ecozen-flow">
+                    <div class="ecozen-step">
+                        <div class="ecozen-step-icon">👁️</div>
+                        <h4>Individual Observation</h4>
+                        <p>Signals noticed, recorded, shared</p>
+                    </div>
+                    <div class="ecozen-arrow">→</div>
+                    <div class="ecozen-step">
+                        <div class="ecozen-step-icon">🪙</div>
+                        <h4>Ecozen Credit (EC<sub>i</sub>)</h4>
+                        <p>Contribution evaluated &amp; credited</p>
+                    </div>
+                    <div class="ecozen-arrow">→</div>
+                    <div class="ecozen-step">
+                        <div class="ecozen-step-icon">🏦</div>
+                        <h4>Territorial Ecozen Capital (TEC)</h4>
+                        <p>Credits aggregate into collective capital</p>
+                    </div>
+                    <div class="ecozen-arrow">→</div>
+                    <div class="ecozen-step">
+                        <div class="ecozen-step-icon">✅</div>
+                        <h4>Community Carbon Attestation (CCA)</h4>
+                        <p>Trust, legitimacy, community validation</p>
+                    </div>
+                    <div class="ecozen-arrow">→</div>
+                    <div class="ecozen-step">
+                        <div class="ecozen-step-icon">🧠</div>
+                        <h4>Territorial Intelligence (V<sub>ROA-TIS</sub>)</h4>
+                        <p>Intelligence emerges at territorial scale</p>
+                    </div>
+                </div>
+                <div class="ecozen-formula">
+                    <code>EC<sub>i</sub> = f(OQ<sub>i</sub>, VQ<sub>i</sub>, RR<sub>i</sub>, T<sub>i</sub>) → TEC → CCA → A·E·Q·R → V<sub>ROA-TIS</sub></code>
+                    <p class="formula-note">OQ = Observation Quality · VQ = Verification Quality · RR = Regenerative Relevance · T = Timeliness</p>
+                </div>
+            </div>
+
+            <!-- Market Sizing -->
+            <div class="panel">
+                <h2 class="panel-title">Market Sizing — TAM / SAM / SOM</h2>
+                <div class="market-sizing">
+                    <div class="market-ring tam">
+                        <div class="market-ring-inner sam">
+                            <div class="market-ring-inner som">
+                                <span class="market-label-center">SOM<br>Mediterranean<br>Agroecosystems</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="market-legend">
+                        <div class="market-legend-item">
+                            <span class="market-dot tam-dot"></span>
+                            <div>
+                                <strong>TAM</strong> — Global spatial intelligence, environmental monitoring, digital twin software
+                            </div>
+                        </div>
+                        <div class="market-legend-item">
+                            <span class="market-dot sam-dot"></span>
+                            <div>
+                                <strong>SAM</strong> — EU public-sector environmental policy, smart-territory decision support, spatial agritech
+                            </div>
+                        </div>
+                        <div class="market-legend-item">
+                            <span class="market-dot som-dot"></span>
+                            <div>
+                                <strong>SOM</strong> — Mediterranean public-private agroecosystems, olive systems as validation entry point
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monetization Streams -->
+            <div class="panel">
+                <h2 class="panel-title">Revenue Streams &amp; Monetization Logic</h2>
+                <table class="command-table">
+                    <thead>
+                        <tr><th>Revenue Stream</th><th>Buyer</th><th>Value Delivered</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>B2G PaaS Subscriptions</strong></td>
+                            <td>Municipalities, regions, national agencies</td>
+                            <td>Predictive dashboards, budget planners, risk routing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Enterprise Risk APIs</strong></td>
+                            <td>Insurers, supply-chain buyers, banks</td>
+                            <td>Anonymized regional risk scores, climate projections</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Carbon &amp; Regenerative Verification</strong></td>
+                            <td>Voluntary carbon market, green bonds</td>
+                            <td>Verified regenerative metrics, MRV pipeline</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Professional Services</strong></td>
+                            <td>Consulting firms, institutions</td>
+                            <td>Governance consulting, custom territorial analysis</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ground-Level Utility (Free)</strong></td>
+                            <td>Farmers, cooperatives, Ecozens</td>
+                            <td>Data fabric strengthening, community telemetry</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     </div>
 
