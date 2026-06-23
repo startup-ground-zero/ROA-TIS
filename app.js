@@ -230,6 +230,58 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // --- Engineering Roadmap Chart ---
+    const ctxRoadmap = document.getElementById('roadmapChart');
+    if (ctxRoadmap) {
+        new Chart(ctxRoadmap, {
+            type: 'bar',
+            data: {
+                labels: [
+                    'Phase 1: Ingestion',
+                    'Phase 2: Algorithmic Hardening',
+                    'Phase 3: Closed-Loop Automation',
+                    'Phase 4: RBAC & APIs',
+                    'Phase 5: Cross-Border Scaling'
+                ],
+                datasets: [{
+                    label: 'Duration (months)',
+                    data: [6, 6, 12, 6, 6],
+                    backgroundColor: [
+                        'rgba(78, 205, 196, 0.6)',
+                        'rgba(93, 173, 226, 0.6)',
+                        'rgba(247, 183, 49, 0.6)',
+                        'rgba(187, 143, 206, 0.6)',
+                        'rgba(255, 107, 107, 0.6)'
+                    ],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 3,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#8899a6',
+                            callback: function(v) { return v + ' mo'; }
+                        },
+                        grid: { color: '#1e2730' },
+                        max: 14
+                    },
+                    y: {
+                        ticks: { color: '#8899a6', font: { size: 12 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
 });
 
 // ===== MOCK INTERACTIONS =====
