@@ -193,6 +193,19 @@ def init_db():
         )
     """)
 
+    # --- Users (RBAC) ---
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            role TEXT NOT NULL DEFAULT 'farmer',
+            territory_id TEXT REFERENCES territories(id),
+            display_name TEXT,
+            created_at TEXT DEFAULT (datetime('now'))
+        )
+    """)
+
     conn.commit()
     conn.close()
 

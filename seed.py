@@ -43,8 +43,9 @@ def seed():
         farms,
     )
 
-    # ── 60-Year Trajectory (Elysian) ──
+    # ── 60-Year Trajectory (All Territories) ──
     trajectory = [
+        # Elysian — strong recovery trajectory
         ("elysian", 1965, 78, 74.3, 68, 64, 100),
         ("elysian", 1975, 72, 70.7, 64, 60, 87.5),
         ("elysian", 1985, 65, 63.6, 56, 54, 75),
@@ -52,6 +53,78 @@ def seed():
         ("elysian", 2005, 60, 60.6, 55, 46, 62.5),
         ("elysian", 2015, 70, 72.1, 66, 56, 50),
         ("elysian", 2025, 88, 85.2, 82, 76, 50),
+        # Sella — declining, limited stewardship
+        ("sella", 1965, 72, 68.0, 62, 58, 95),
+        ("sella", 1975, 68, 65.0, 58, 55, 82),
+        ("sella", 1985, 60, 58.0, 50, 48, 70),
+        ("sella", 1995, 52, 50.0, 44, 40, 58),
+        ("sella", 2005, 48, 46.0, 40, 36, 50),
+        ("sella", 2015, 50, 48.0, 42, 38, 45),
+        ("sella", 2025, 55, 52.1, 48, 42, 42),
+        # Kastritsi — stable but stagnant
+        ("kastritsi", 1965, 70, 66.0, 60, 56, 92),
+        ("kastritsi", 1975, 66, 63.0, 56, 52, 80),
+        ("kastritsi", 1985, 58, 56.0, 48, 46, 68),
+        ("kastritsi", 1995, 52, 50.0, 44, 40, 58),
+        ("kastritsi", 2005, 50, 48.0, 42, 38, 52),
+        ("kastritsi", 2015, 52, 50.0, 44, 40, 48),
+        ("kastritsi", 2025, 54, 52.1, 47, 40, 45),
+        # Western Greece — large scale, moderate health
+        ("wgreece", 1965, 75, 72.0, 65, 60, 98),
+        ("wgreece", 1975, 70, 67.0, 60, 56, 85),
+        ("wgreece", 1985, 62, 60.0, 52, 48, 72),
+        ("wgreece", 1995, 56, 54.0, 46, 42, 60),
+        ("wgreece", 2005, 58, 56.0, 50, 44, 55),
+        ("wgreece", 2015, 63, 62.0, 56, 50, 50),
+        ("wgreece", 2025, 65, 62.0, 60, 56, 48),
+        # Chalandritsa — slow recovery
+        ("chalandritsa", 1965, 74, 70.0, 64, 58, 96),
+        ("chalandritsa", 1975, 68, 64.0, 58, 54, 82),
+        ("chalandritsa", 1985, 60, 56.0, 50, 46, 68),
+        ("chalandritsa", 1995, 54, 50.0, 44, 40, 56),
+        ("chalandritsa", 2005, 52, 50.0, 44, 38, 50),
+        ("chalandritsa", 2015, 56, 54.0, 48, 44, 46),
+        ("chalandritsa", 2025, 62, 58.0, 55, 48, 44),
+        # Messinia — strong ecological base
+        ("messinia", 1965, 80, 76.0, 70, 66, 100),
+        ("messinia", 1975, 74, 70.0, 64, 60, 88),
+        ("messinia", 1985, 66, 62.0, 56, 52, 74),
+        ("messinia", 1995, 58, 54.0, 48, 44, 62),
+        ("messinia", 2005, 55, 52.0, 46, 42, 55),
+        ("messinia", 2015, 58, 56.0, 50, 48, 50),
+        ("messinia", 2025, 60, 56.0, 53, 50, 48),
+        # Crete — fire risk, resilient ecology
+        ("crete", 1965, 76, 72.0, 66, 62, 98),
+        ("crete", 1975, 70, 66.0, 60, 56, 85),
+        ("crete", 1985, 62, 58.0, 52, 48, 72),
+        ("crete", 1995, 54, 50.0, 44, 40, 60),
+        ("crete", 2005, 52, 50.0, 44, 38, 54),
+        ("crete", 2015, 56, 54.0, 48, 44, 48),
+        ("crete", 2025, 60, 57.0, 54, 46, 45),
+        # Andalusia — industrial scale, stressed
+        ("andalusia", 1965, 70, 66.0, 60, 56, 96),
+        ("andalusia", 1975, 64, 60.0, 54, 50, 82),
+        ("andalusia", 1985, 56, 52.0, 46, 42, 68),
+        ("andalusia", 1995, 48, 44.0, 38, 34, 56),
+        ("andalusia", 2005, 44, 42.0, 36, 32, 50),
+        ("andalusia", 2015, 48, 46.0, 40, 36, 46),
+        ("andalusia", 2025, 54, 50.0, 48, 40, 44),
+        # Tuscany — premium, well-maintained
+        ("tuscany", 1965, 82, 78.0, 72, 68, 100),
+        ("tuscany", 1975, 76, 72.0, 66, 62, 90),
+        ("tuscany", 1985, 68, 64.0, 58, 54, 78),
+        ("tuscany", 1995, 60, 58.0, 52, 48, 66),
+        ("tuscany", 2005, 58, 56.0, 52, 48, 60),
+        ("tuscany", 2015, 62, 60.0, 56, 52, 55),
+        ("tuscany", 2025, 66, 64.0, 62, 58, 52),
+        # Alentejo — large, low density, stressed soils
+        ("alentejo", 1965, 68, 64.0, 58, 54, 94),
+        ("alentejo", 1975, 62, 58.0, 52, 48, 80),
+        ("alentejo", 1985, 54, 50.0, 44, 40, 66),
+        ("alentejo", 1995, 46, 42.0, 36, 32, 54),
+        ("alentejo", 2005, 44, 42.0, 36, 30, 48),
+        ("alentejo", 2015, 48, 46.0, 40, 36, 44),
+        ("alentejo", 2025, 56, 52.0, 50, 42, 42),
     ]
     c.executemany(
         "INSERT OR REPLACE INTO trajectory_data (territory_id, year, stewardship_capacity, ecological_equilibrium, wildlife_balance, soil_organic_matter, population_index) VALUES (?,?,?,?,?,?,?)",
@@ -238,6 +311,22 @@ def seed():
     c.executemany(
         "INSERT OR REPLACE INTO workings (farm_id, date, task_type, task_description) VALUES (?,?,?,?)",
         june_tasks,
+    )
+
+    # ── Users (demo accounts) ──
+    import hashlib
+    def hash_pw(pw):
+        return hashlib.sha256(pw.encode()).hexdigest()
+
+    users = [
+        ("admin", hash_pw("admin123"), "authority", None, "System Administrator"),
+        ("authority", hash_pw("authority123"), "authority", "elysian", "Authority Officer"),
+        ("farmer", hash_pw("farmer123"), "farmer", "elysian", "Alexandros Liakopoulos"),
+        ("investor", hash_pw("investor123"), "investor", None, "Investor Demo"),
+    ]
+    c.executemany(
+        "INSERT OR REPLACE INTO users (username, password_hash, role, territory_id, display_name) VALUES (?,?,?,?,?)",
+        users,
     )
 
     conn.commit()

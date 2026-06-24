@@ -1,10 +1,117 @@
 // ===== ROA-TIS Frontend — Stage 3: Live Interactive Dashboard =====
 const API_BASE = 'http://127.0.0.1:5000/api';
 
-// ===== STATE (reactive — changes trigger reload) =====
-let TERRITORY = 'elysian';
-let YEAR = 2025;
-let FARM = 'farm-elysian';
+// ===== AUTH & RBAC =====
+let currentUser = JSON.parse(localStorage.getItem('roatis_user') || 'null');
+
+const ROLE_TABS = {
+    authority: ['dashboard', 'farmer', 'engines', 'investor', 'architecture'],
+    farmer: ['farmer', 'dashboard', 'engines'],
+    investor: ['investor', 'dashboard', 'architecture'],
+};
+
+function showLogin() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('main-app').style.display = 'none';
+}
+
+function showApp() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-app').style.display = '';
+
+    // Update user badge
+    const badge = document.getElementById('user-badge');
+    const display = document.getElementById('user-display');
+    const roleTag = document.getElementById('user-role-tag');
+    if (display) display.textContent = currentUser.display_name || currentUser.username;
+    if (roleTag) {
+        roleTag.textContent = currentUser.role;
+        roleTag.className = `role-tag ${currentUser.role}`;
+    }
+
+    // Apply RBAC: show/hide tabs based on role
+    const allowedTabs = ROLE_TABS[currentUser.role] || ROLE_TABS.authority;
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        const view = tab.dataset.view;
+        if (allowedTabs.includes(view)) {
+            tab.style.display = '';
+        } else {
+            tab.style.display = 'none';
+        }
+    });
+
+    // Set default active tab to first allowed
+    const defaultView = allowedTabs[0];
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const defaultTab = document.querySelector(`.nav-tab[data-view="${defaultView}"]`);
+    if (defaultTab) defaultTab.classList.add('active');
+    const defaultViewEl = document.getElementById(`view-${defaultView}`);
+    if (defaultViewEl) defaultViewEl.classList.add('active');
+
+    // If farmer role, lock territory to their assigned one
+    if (currentUser.role === 'farmer' && currentUser.territory_id) {
+        TERRITORY = currentUser.territory_id;
+        FARM = `farm-${TERRITORY}`;
+        const terrSel = document.getElementById('territory-select');
+        if (terrSel) { terrSel.value = TERRITORY; terrSel.disabled = true; }
+    } else {
+        const terrSel = document.getElementById('territory-select');
+        if (terrSel) terrSel.disabled = false;
+    }
+}
+
+async function doLogin(username, password) {
+    const errorEl = document.getElementById('login-error');
+    errorEl.textContent = '';
+    try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            errorEl.textContent = data.error || 'Login failed';
+            return;
+        }
+        currentUser = data;
+        localStorage.setItem('roatis_user', JSON.stringify(data));
+        showApp();
+        loadAllData();
+    } catch {
+        errorEl.textContent = 'Cannot connect to server';
+    }
+}
+
+function doLogout() {
+    currentUser = null;
+    localStorage.removeItem('roatis_user');
+    showLogin();
+}
+
+// Login form handler
+document.getElementById('login-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    doLogin(username, password);
+});
+
+// Demo account buttons
+document.querySelectorAll('.demo-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        doLogin(btn.dataset.user, btn.dataset.pass);
+    });
+});
+
+// Logout button
+document.getElementById('btn-logout')?.addEventListener('click', doLogout);
+
+// ===== STATE (reactive — persisted in localStorage) =====
+let TERRITORY = localStorage.getItem('roatis_territory') || 'elysian';
+let YEAR = parseInt(localStorage.getItem('roatis_year')) || 2025;
+let FARM = `farm-${TERRITORY}`;
 
 // Chart instances (for destroy/rebuild on data change)
 let trajectoryChart = null;
@@ -31,23 +138,38 @@ async function fetchJSON(endpoint) {
 async function loadAllData() {
     const statusDot = document.getElementById('api-status');
     try {
-        const [dashboard, trajectory, comparison, engines, farm, workings] = await Promise.all([
-            fetchJSON(`/dashboard/${TERRITORY}/${YEAR}`),
-            fetchJSON(`/trajectory/${TERRITORY}`),
-            fetchJSON(`/comparison/${YEAR}`),
-            fetchJSON(`/engines/${TERRITORY}/${YEAR}`),
-            fetchJSON(`/farm/${FARM}`),
-            fetchJSON(`/farm/${FARM}/workings?month=2025-06`),
+        // Core territory data — dashboard may 404 for years without engine scores
+        const [dashboard, trajectory, comparison, engines] = await Promise.all([
+            fetchJSON(`/dashboard/${TERRITORY}/${YEAR}`).catch(() => null),
+            fetchJSON(`/trajectory/${TERRITORY}`).catch(() => ({ labels: [], stewardship_capacity: [], ecological_equilibrium: [], wildlife_balance: [], soil_organic_matter: [], population_index: [] })),
+            fetchJSON(`/comparison/${YEAR}`).catch(() => []),
+            fetchJSON(`/engines/${TERRITORY}/${YEAR}`).catch(() => null),
         ]);
 
-        updateKPIs(dashboard.kpis, engines);
-        updateCommandCenter(dashboard.command_center);
-        updatePriorities(dashboard.priorities);
-        updateEngineCards(engines);
+        // Farm data (may not exist for all territories)
+        let farm = null;
+        let workings = [];
+        try {
+            [farm, workings] = await Promise.all([
+                fetchJSON(`/farm/${FARM}`),
+                fetchJSON(`/farm/${FARM}/workings?month=${YEAR}-06`),
+            ]);
+        } catch { /* farm not seeded for this territory */ }
+
+        if (dashboard) {
+            updateKPIs(dashboard.kpis, engines);
+            updateCommandCenter(dashboard.command_center);
+            updatePriorities(dashboard.priorities);
+        } else {
+            updateKPIs({ rti: '—', tars: '—', bsep: '—', budget_gap: '—' }, null);
+            updateCommandCenter([]);
+            updatePriorities([]);
+        }
+        if (engines) updateEngineCards(engines);
         updateFarmerStats(farm);
         renderTrajectoryChart(trajectory);
         renderComparisonChart(comparison);
-        renderRevenueChart();
+        renderRevenueChart(farm);
         renderCapitalChart();
         renderRoadmapChart();
         loadObservationHistory();
@@ -57,7 +179,7 @@ async function loadAllData() {
     } catch (err) {
         console.error('ROA-TIS API Error:', err);
         if (statusDot) { statusDot.classList.remove('online'); statusDot.classList.add('offline'); }
-        renderRevenueChart();
+        renderRevenueChart(null);
         renderCapitalChart();
         renderRoadmapChart();
     }
@@ -67,23 +189,30 @@ async function loadAllData() {
 document.getElementById('territory-select')?.addEventListener('change', (e) => {
     TERRITORY = e.target.value;
     FARM = `farm-${TERRITORY}`;
+    localStorage.setItem('roatis_territory', TERRITORY);
+    // Sync engine-select dropdown
+    const engineSel = document.querySelector('.engine-select');
+    if (engineSel) engineSel.value = TERRITORY;
     loadAllData();
 });
 
 document.getElementById('year-select')?.addEventListener('change', (e) => {
     YEAR = parseInt(e.target.value);
+    localStorage.setItem('roatis_year', YEAR);
     loadAllData();
 });
 
 // ===== KPI UPDATES WITH CONFIDENCE =====
 function updateKPIs(kpis, engines) {
+    const noData = (v) => v === '—' || v === null || v === undefined;
+
     // RTI
     const rtiVal = document.getElementById('kpi-rti-value');
     const rtiTrend = document.getElementById('kpi-rti-trend');
     const rtiConf = document.getElementById('kpi-rti-conf');
     if (rtiVal) {
-        rtiVal.textContent = kpis.rti;
-        rtiVal.className = 'kpi-value ' + (kpis.rti >= 70 ? 'good' : kpis.rti >= 40 ? 'warning' : 'alert');
+        rtiVal.textContent = noData(kpis.rti) ? '—' : kpis.rti;
+        rtiVal.className = 'kpi-value ' + (noData(kpis.rti) ? '' : kpis.rti >= 70 ? 'good' : kpis.rti >= 40 ? 'warning' : 'alert');
     }
     if (rtiTrend) rtiTrend.textContent = engines?.rti?.confidence ? `Confidence: ${engines.rti.confidence}` : '';
     if (rtiConf) rtiConf.innerHTML = engines?.rti?.confidence ? renderConfidenceBadge(engines.rti.confidence) : '';
@@ -93,8 +222,8 @@ function updateKPIs(kpis, engines) {
     const tarsTrend = document.getElementById('kpi-tars-trend');
     const tarsConf = document.getElementById('kpi-tars-conf');
     if (tarsVal) {
-        tarsVal.textContent = kpis.tars;
-        tarsVal.className = 'kpi-value ' + (kpis.tars <= 5 ? 'good' : kpis.tars <= 10 ? 'warning' : 'alert');
+        tarsVal.textContent = noData(kpis.tars) ? '—' : kpis.tars;
+        tarsVal.className = 'kpi-value ' + (noData(kpis.tars) ? '' : kpis.tars <= 5 ? 'good' : kpis.tars <= 10 ? 'warning' : 'alert');
     }
     if (tarsTrend) tarsTrend.textContent = engines?.tars?.status || '';
     if (tarsConf) tarsConf.innerHTML = engines?.tars?.status ? `<span class="conf-badge conf-${engines.tars.status.toLowerCase()}">${engines.tars.status}</span>` : '';
@@ -104,8 +233,8 @@ function updateKPIs(kpis, engines) {
     const bsepTrend = document.getElementById('kpi-bsep-trend');
     const bsepConf = document.getElementById('kpi-bsep-conf');
     if (bsepVal) {
-        bsepVal.textContent = kpis.bsep;
-        bsepVal.className = 'kpi-value ' + (kpis.bsep >= 60 ? 'alert' : kpis.bsep >= 30 ? 'warning' : 'good');
+        bsepVal.textContent = noData(kpis.bsep) ? '—' : kpis.bsep;
+        bsepVal.className = 'kpi-value ' + (noData(kpis.bsep) ? '' : kpis.bsep >= 60 ? 'alert' : kpis.bsep >= 30 ? 'warning' : 'good');
     }
     if (bsepTrend) bsepTrend.textContent = engines?.bsep?.escalation || '';
     if (bsepConf) bsepConf.innerHTML = engines?.bsep?.escalation ? `<span class="conf-badge conf-${engines.bsep.escalation.toLowerCase()}">${engines.bsep.escalation}</span>` : '';
@@ -115,8 +244,8 @@ function updateKPIs(kpis, engines) {
     const budgetTrend = document.getElementById('kpi-budget-trend');
     const budgetConf = document.getElementById('kpi-budget-conf');
     if (budgetVal) {
-        budgetVal.textContent = '\u20AC' + kpis.budget_gap + 'M';
-        budgetVal.className = 'kpi-value ' + (kpis.budget_gap > 150 ? 'alert' : kpis.budget_gap > 50 ? 'warning' : 'good');
+        budgetVal.textContent = noData(kpis.budget_gap) ? '—' : `€${kpis.budget_gap}M`;
+        budgetVal.className = 'kpi-value ' + (noData(kpis.budget_gap) ? '' : kpis.budget_gap > 150 ? 'alert' : kpis.budget_gap > 50 ? 'warning' : 'good');
     }
     if (budgetTrend) budgetTrend.textContent = engines?.budget?.scenario || '';
     if (budgetConf) budgetConf.innerHTML = engines?.budget?.urgency ? `<span class="conf-badge conf-urgency">Urgency: ${engines.budget.urgency}/5</span>` : '';
@@ -131,7 +260,8 @@ function renderConfidenceBadge(grade) {
 // ===== COMMAND CENTER =====
 function updateCommandCenter(commands) {
     const tbody = document.querySelector('.command-table tbody');
-    if (!tbody || commands.length === 0) return;
+    if (!tbody) return;
+    if (commands.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#8899a6">No data for this year</td></tr>'; return; }
     const unique = commands.slice(0, 5);
     tbody.innerHTML = unique.map(cmd => {
         const badgeClass = cmd.status === 'Emergency Escalation' ? 'emergency' :
@@ -183,7 +313,8 @@ function switchToView(target) {
 // ===== PRIORITIES =====
 function updatePriorities(priorities) {
     const list = document.querySelector('#view-dashboard .priority-list');
-    if (!list || priorities.length === 0) return;
+    if (!list) return;
+    if (priorities.length === 0) { list.innerHTML = '<p style="color:#8899a6;text-align:center">No priority data for this year</p>'; return; }
     const unique = priorities.slice(0, 6);
     list.innerHTML = unique.map(p => `
         <div class="priority-item ${p.severity}">
@@ -200,70 +331,90 @@ function updatePriorities(priorities) {
 // ===== ENGINE CARDS =====
 function updateEngineCards(engines) {
     const cards = document.querySelectorAll('.engine-card');
-    if (cards.length < 6) return;
+    if (cards.length < 6 || !engines) return;
 
     // RTI
-    cards[0].querySelector('.engine-score').textContent = engines.rti.score;
-    const rtiParams = cards[0].querySelectorAll('.param-val');
-    rtiParams[0].textContent = engines.rti.params.stewardship_capacity + '%';
-    rtiParams[1].textContent = engines.rti.params.ecological_literacy + '%';
-    rtiParams[2].textContent = engines.rti.params.wildlife_balance + '%';
-    rtiParams[3].textContent = engines.rti.params.pollinator_index + '%';
-    rtiParams[4].textContent = engines.rti.params.soil_organic_matter + '%';
-    rtiParams[5].textContent = engines.rti.params.habitat_connectivity + '%';
-    cards[0].querySelector('.engine-confidence').innerHTML = `Confidence: <strong>${engines.rti.confidence}</strong> ${renderConfidenceBadge(engines.rti.confidence)}`;
+    if (engines.rti) {
+        cards[0].querySelector('.engine-score').textContent = engines.rti.score ?? '—';
+        const rtiParams = cards[0].querySelectorAll('.param-val');
+        if (engines.rti.params) {
+            rtiParams[0].textContent = (engines.rti.params.stewardship_capacity ?? '—') + '%';
+            rtiParams[1].textContent = (engines.rti.params.ecological_literacy ?? '—') + '%';
+            rtiParams[2].textContent = (engines.rti.params.wildlife_balance ?? '—') + '%';
+            rtiParams[3].textContent = (engines.rti.params.pollinator_index ?? '—') + '%';
+            rtiParams[4].textContent = (engines.rti.params.soil_organic_matter ?? '—') + '%';
+            rtiParams[5].textContent = (engines.rti.params.habitat_connectivity ?? '—') + '%';
+        }
+        cards[0].querySelector('.engine-confidence').innerHTML = engines.rti.confidence ? `Confidence: <strong>${engines.rti.confidence}</strong> ${renderConfidenceBadge(engines.rti.confidence)}` : '';
+    }
 
     // TARS
-    cards[1].querySelector('.engine-score').textContent = engines.tars.score;
-    const tarsParams = cards[1].querySelectorAll('.param-val');
-    tarsParams[0].textContent = engines.tars.params.wildfire_events;
-    tarsParams[1].textContent = engines.tars.params.flood_events;
-    tarsParams[2].textContent = engines.tars.params.pest_disease;
-    tarsParams[3].textContent = engines.tars.params.drought_days;
-    tarsParams[4].textContent = engines.tars.params.heatwave_days;
-    tarsParams[5].textContent = engines.tars.params.years_since_event;
-    cards[1].querySelector('.engine-confidence').innerHTML = `Status: <span class="badge-inline ${engines.tars.status.toLowerCase()}">${engines.tars.status}</span>`;
+    if (engines.tars) {
+        cards[1].querySelector('.engine-score').textContent = engines.tars.score ?? '—';
+        const tarsParams = cards[1].querySelectorAll('.param-val');
+        if (engines.tars.params) {
+            tarsParams[0].textContent = engines.tars.params.wildfire_events ?? '—';
+            tarsParams[1].textContent = engines.tars.params.flood_events ?? '—';
+            tarsParams[2].textContent = engines.tars.params.pest_disease ?? '—';
+            tarsParams[3].textContent = engines.tars.params.drought_days ?? '—';
+            tarsParams[4].textContent = engines.tars.params.heatwave_days ?? '—';
+            tarsParams[5].textContent = engines.tars.params.years_since_event ?? '—';
+        }
+        cards[1].querySelector('.engine-confidence').innerHTML = engines.tars.status ? `Status: <span class="badge-inline ${engines.tars.status.toLowerCase()}">${engines.tars.status}</span>` : '';
+    }
 
     // OPCI
-    cards[2].querySelector('.engine-score').textContent = engines.opci.score;
-    const opciParams = cards[2].querySelectorAll('.param-val');
-    opciParams[0].textContent = engines.opci.params.productive_trees_pct + '%';
-    opciParams[1].textContent = engines.opci.params.tree_vitality + '%';
-    opciParams[2].textContent = engines.opci.params.avg_trunk_perimeter + ' cm';
-    opciParams[3].textContent = engines.opci.params.yield_per_tree + ' kg';
-    opciParams[4].textContent = engines.opci.params.regenerative_inputs;
+    if (engines.opci) {
+        cards[2].querySelector('.engine-score').textContent = engines.opci.score ?? '—';
+        const opciParams = cards[2].querySelectorAll('.param-val');
+        if (engines.opci.params) {
+            opciParams[0].textContent = (engines.opci.params.productive_trees_pct ?? '—') + '%';
+            opciParams[1].textContent = (engines.opci.params.tree_vitality ?? '—') + '%';
+            opciParams[2].textContent = (engines.opci.params.avg_trunk_perimeter ?? '—') + ' cm';
+            opciParams[3].textContent = (engines.opci.params.yield_per_tree ?? '—') + ' kg';
+            opciParams[4].textContent = engines.opci.params.regenerative_inputs ?? '—';
+        }
+    }
 
     // BSEP
-    cards[3].querySelector('.engine-score').textContent = engines.bsep.score;
-    const bsepParams = cards[3].querySelectorAll('.param-val');
-    bsepParams[0].textContent = engines.bsep.category || '\u2014';
-    bsepParams[1].textContent = engines.bsep.escalation || '\u2014';
-    bsepParams[2].textContent = engines.bsep.recovery_target_years + ' years';
-    bsepParams[3].textContent = engines.bsep.current_recovery_pct + '%';
-    bsepParams[4].textContent = engines.bsep.human_capital_risk;
+    if (engines.bsep) {
+        cards[3].querySelector('.engine-score').textContent = engines.bsep.score ?? '—';
+        const bsepParams = cards[3].querySelectorAll('.param-val');
+        bsepParams[0].textContent = engines.bsep.category || '—';
+        bsepParams[1].textContent = engines.bsep.escalation || '—';
+        bsepParams[2].textContent = (engines.bsep.recovery_target_years ?? '—') + ' years';
+        bsepParams[3].textContent = (engines.bsep.current_recovery_pct ?? '—') + '%';
+        bsepParams[4].textContent = engines.bsep.human_capital_risk || '—';
+    }
 
     // CAII
-    cards[4].querySelector('.engine-score').textContent = engines.caii.score;
-    const caiiParams = cards[4].querySelectorAll('.param-val');
-    caiiParams[0].textContent = engines.caii.params.community_governance;
-    caiiParams[1].textContent = engines.caii.params.human_capital;
-    caiiParams[2].textContent = engines.caii.params.social_collaboration;
-    caiiParams[3].textContent = engines.caii.params.territorial_intelligence;
+    if (engines.caii) {
+        cards[4].querySelector('.engine-score').textContent = engines.caii.score ?? '—';
+        const caiiParams = cards[4].querySelectorAll('.param-val');
+        if (engines.caii.params) {
+            caiiParams[0].textContent = engines.caii.params.community_governance ?? '—';
+            caiiParams[1].textContent = engines.caii.params.human_capital ?? '—';
+            caiiParams[2].textContent = engines.caii.params.social_collaboration ?? '—';
+            caiiParams[3].textContent = engines.caii.params.territorial_intelligence ?? '—';
+        }
+    }
 
     // Budget
-    cards[5].querySelector('.engine-score').textContent = '\u20AC' + engines.budget.gap + 'M';
-    const budgetParams = cards[5].querySelectorAll('.param-val');
-    budgetParams[0].textContent = '\u20AC' + engines.budget.scientific_need + 'M';
-    budgetParams[1].textContent = '\u20AC' + engines.budget.current + 'M';
-    budgetParams[2].textContent = engines.budget.discounting_ratio;
-    budgetParams[3].textContent = engines.budget.scenario;
-    budgetParams[4].textContent = engines.budget.urgency + ' / 5';
+    if (engines.budget) {
+        cards[5].querySelector('.engine-score').textContent = '€' + (engines.budget.gap ?? '—') + 'M';
+        const budgetParams = cards[5].querySelectorAll('.param-val');
+        budgetParams[0].textContent = '€' + (engines.budget.scientific_need ?? '—') + 'M';
+        budgetParams[1].textContent = '€' + (engines.budget.current ?? '—') + 'M';
+        budgetParams[2].textContent = engines.budget.discounting_ratio ?? '—';
+        budgetParams[3].textContent = engines.budget.scenario ?? '—';
+        budgetParams[4].textContent = (engines.budget.urgency ?? '—') + ' / 5';
+    }
 }
 
 // ===== FARMER STATS =====
 function updateFarmerStats(farmData) {
     const stats = document.querySelectorAll('.stat-row span:last-child');
-    if (stats.length < 6 || !farmData.latest_production) return;
+    if (stats.length < 6 || !farmData || !farmData.latest_production) return;
     const p = farmData.latest_production;
     stats[0].textContent = p.olive_harvest_kg.toLocaleString() + ' kg';
     stats[1].textContent = p.oil_extracted_l.toLocaleString() + ' L';
@@ -278,6 +429,18 @@ function renderTrajectoryChart(data) {
     const ctx = document.getElementById('trajectoryChart');
     if (!ctx) return;
     if (trajectoryChart) trajectoryChart.destroy();
+    if (!data || !data.labels || data.labels.length === 0) {
+        ctx.parentElement.querySelector('.no-data-msg')?.remove();
+        const msg = document.createElement('p');
+        msg.className = 'no-data-msg';
+        msg.style.cssText = 'color:#8899a6;text-align:center;padding:24px;font-size:14px;';
+        msg.textContent = 'No trajectory data available for this territory.';
+        ctx.style.display = 'none';
+        ctx.parentElement.appendChild(msg);
+        return;
+    }
+    ctx.style.display = '';
+    ctx.parentElement.querySelector('.no-data-msg')?.remove();
     trajectoryChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -305,6 +468,7 @@ function renderComparisonChart(data) {
     const ctx = document.getElementById('roaComparisonChart');
     if (!ctx) return;
     if (comparisonChart) comparisonChart.destroy();
+    if (!data || !data.labels || data.labels.length === 0) return;
     comparisonChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -500,6 +664,13 @@ document.querySelector('.btn-compute')?.addEventListener('click', async (e) => {
     btn.style.opacity = '0.7';
     try {
         const recalcRes = await fetch(`${API_BASE}/recalculate/${TERRITORY}/${YEAR}`, { method: 'POST' });
+        if (recalcRes.status === 404) {
+            btn.textContent = '\u26A0 No trajectory data for this territory';
+            btn.style.background = '#f7b731';
+            btn.style.opacity = '1';
+            setTimeout(() => { btn.textContent = '\u21BB Recompute All Engines'; btn.style.background = '#4ecdc4'; btn.style.opacity = '1'; }, 3000);
+            return;
+        }
         if (!recalcRes.ok) throw new Error('Recalculate failed');
 
         const [dashboard, engines] = await Promise.all([
@@ -523,7 +694,21 @@ document.querySelector('.btn-compute')?.addEventListener('click', async (e) => {
 document.addEventListener('DOMContentLoaded', () => {
     const dateInput = document.getElementById('obs-date');
     if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
-    loadAllData();
+
+    // Check if user is already logged in
+    if (currentUser) {
+        showApp();
+        // Restore saved selections to dropdowns
+        const terrSel = document.getElementById('territory-select');
+        const yearSel = document.getElementById('year-select');
+        const engineSel = document.querySelector('.engine-select');
+        if (terrSel) terrSel.value = TERRITORY;
+        if (yearSel) yearSel.value = YEAR;
+        if (engineSel) engineSel.value = TERRITORY;
+        loadAllData();
+    } else {
+        showLogin();
+    }
 });
 
 // ===== ALERT BANNER — View Routing =====
@@ -538,15 +723,29 @@ document.querySelectorAll('.farmer-nav-item').forEach(item => {
         document.querySelectorAll('.farmer-nav-item').forEach(i => i.classList.remove('active'));
         item.classList.add('active');
         const label = item.textContent.trim();
-        if (label === 'Data Entry') {
-            document.querySelector('.today-observation')?.scrollIntoView({ behavior: 'smooth' });
-        } else if (label === 'My Grove Health') {
-            switchToView('engines');
-        } else if (label === 'Alerts') {
-            switchToView('dashboard');
-            setTimeout(() => document.querySelector('.alert-banner')?.scrollIntoView({ behavior: 'smooth' }), 100);
-        } else if (label === 'Daily Workings') {
-            document.querySelector('.workings-calendar')?.scrollIntoView({ behavior: 'smooth' });
+        const expensesPanel = document.getElementById('expenses-panel');
+        const farmerMain = document.querySelector('.farmer-main');
+        // Show/hide expenses panel, toggle main content visibility
+        if (label === 'Expenses') {
+            if (expensesPanel) expensesPanel.style.display = 'block';
+            // Hide other farmer content
+            farmerMain.querySelectorAll(':scope > *:not(#expenses-panel)').forEach(el => el.style.display = 'none');
+            // Update expenses with current year
+            const yearSpan = document.getElementById('expenses-year');
+            if (yearSpan) yearSpan.textContent = YEAR;
+        } else {
+            if (expensesPanel) expensesPanel.style.display = 'none';
+            farmerMain.querySelectorAll(':scope > *:not(#expenses-panel)').forEach(el => el.style.display = '');
+            if (label === 'Data Entry') {
+                document.querySelector('.today-observation')?.scrollIntoView({ behavior: 'smooth' });
+            } else if (label === 'My Grove Health') {
+                switchToView('engines');
+            } else if (label === 'Alerts') {
+                switchToView('dashboard');
+                setTimeout(() => document.querySelector('.alert-banner')?.scrollIntoView({ behavior: 'smooth' }), 100);
+            } else if (label === 'Daily Workings') {
+                document.querySelector('.workings-calendar')?.scrollIntoView({ behavior: 'smooth' });
+            }
         }
     });
 });
@@ -554,24 +753,10 @@ document.querySelectorAll('.farmer-nav-item').forEach(item => {
 // ===== ENGINE VIEW TERRITORY SELECT =====
 document.querySelector('.engine-select')?.addEventListener('change', (e) => {
     const val = e.target.value;
-    // Parse territory from option text: "ROA Elysian EVOO — 2025"
-    const map = {
-        'ROA Elysian EVOO': 'elysian',
-        'ROA Sella': 'sella',
-        'ROA Kastritsi': 'kastritsi',
-        'ROA Western Greece': 'wgreece',
-        'ROA Chalandritsa Meridian': 'chalandritsa',
-        'ROA Andalusia': 'andalusia',
-        'ROA Tuscany': 'tuscany',
-        'ROA Alentejo': 'alentejo',
-        'ROA Messinia': 'messinia',
-        'ROA Crete': 'crete',
-    };
-    const name = val.split(' \u2014 ')[0] || val.split(' — ')[0];
-    const matched = map[name];
-    if (matched) {
-        TERRITORY = matched;
+    if (val) {
+        TERRITORY = val;
         FARM = `farm-${TERRITORY}`;
+        localStorage.setItem('roatis_territory', TERRITORY);
         document.getElementById('territory-select').value = TERRITORY;
         loadAllData();
     }
@@ -601,4 +786,117 @@ document.querySelectorAll('.cal-btn').forEach(btn => {
         if (btns[0]) btns[0].textContent = `\u2190 ${monthNames[prevMonth]}`;
         if (btns[1]) btns[1].textContent = `${monthNames[nextMonth]} \u2192`;
     });
+});
+
+// ===== PDF EXPORT =====
+document.getElementById('btn-export-pdf')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btn-export-pdf');
+    btn.textContent = '⏳ Generating report...';
+    btn.disabled = true;
+
+    try {
+        const [dashboard, engines, trajectory] = await Promise.all([
+            fetchJSON(`/dashboard/${TERRITORY}/${YEAR}`).catch(() => null),
+            fetchJSON(`/engines/${TERRITORY}/${YEAR}`).catch(() => null),
+            fetchJSON(`/trajectory/${TERRITORY}`).catch(() => null),
+        ]);
+
+        const territoryName = document.getElementById('territory-select')?.selectedOptions[0]?.text || TERRITORY;
+        const kpis = dashboard?.kpis || {};
+        const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        const reportHTML = `
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>ROA-TIS Territory Report — ${territoryName} ${YEAR}</title>
+<style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 40px; color: #1a1a1a; line-height: 1.6; }
+    h1 { color: #0f1419; border-bottom: 3px solid #4ecdc4; padding-bottom: 8px; }
+    h2 { color: #2e3640; margin-top: 24px; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+    .header-meta { text-align: right; color: #666; font-size: 13px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 16px 0; }
+    .kpi-box { border: 1px solid #ddd; border-radius: 8px; padding: 16px; text-align: center; }
+    .kpi-box .value { font-size: 28px; font-weight: 700; color: #4ecdc4; }
+    .kpi-box .label { font-size: 12px; color: #666; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    th, td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; font-size: 13px; }
+    th { background: #f5f5f5; font-weight: 600; }
+    .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #ddd; font-size: 11px; color: #999; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .badge-good { background: #d4edda; color: #155724; }
+    .badge-warning { background: #fff3cd; color: #856404; }
+    .badge-alert { background: #f8d7da; color: #721c24; }
+    @media print { body { margin: 20px; } }
+</style>
+</head><body>
+<div class="header">
+    <div>
+        <h1>◉ ROA-TIS Territory Report</h1>
+        <p><strong>${territoryName}</strong> — Year ${YEAR}</p>
+    </div>
+    <div class="header-meta">
+        <p>Generated: ${date}</p>
+        <p>System: ROA-TIS v0.2.0</p>
+        <p>Confidence: ${engines?.rti?.confidence || 'N/A'}</p>
+    </div>
+</div>
+
+<h2>Key Performance Indicators</h2>
+<div class="kpi-grid">
+    <div class="kpi-box"><div class="value">${kpis.rti ?? '—'}</div><div class="label">RTI (Regenerative Index)</div></div>
+    <div class="kpi-box"><div class="value">${kpis.tars ?? '—'}</div><div class="label">TARS (Risk Score)</div></div>
+    <div class="kpi-box"><div class="value">${kpis.bsep ?? '—'}</div><div class="label">BSEP (Black Swan)</div></div>
+    <div class="kpi-box"><div class="value">€${kpis.budget_gap ?? '—'}M</div><div class="label">Budget Gap</div></div>
+</div>
+
+${engines ? `
+<h2>Engine Breakdown</h2>
+<table>
+    <tr><th>Engine</th><th>Score</th><th>Status</th></tr>
+    <tr><td>RTI — Regenerative Territorial Index</td><td><strong>${engines.rti?.score ?? '—'}</strong> / 100</td><td>${engines.rti?.confidence ? 'Confidence ' + engines.rti.confidence : '—'}</td></tr>
+    <tr><td>TARS — Territorial Anomaly Risk</td><td><strong>${engines.tars?.score ?? '—'}</strong> / 100</td><td>${engines.tars?.status ?? '—'}</td></tr>
+    <tr><td>OPCI — Productive Capacity</td><td><strong>${engines.opci?.score ?? '—'}</strong></td><td>—</td></tr>
+    <tr><td>BSEP — Black Swan Exposure</td><td><strong>${engines.bsep?.score ?? '—'}</strong></td><td><span class="badge ${engines.bsep?.escalation === 'Emergency' ? 'badge-alert' : 'badge-warning'}">${engines.bsep?.escalation ?? '—'}</span></td></tr>
+    <tr><td>CAII — Community Asset Intelligence</td><td><strong>${engines.caii?.score ?? '—'}</strong> / 100</td><td>${engines.caii?.triggered_missions ?? '—'} missions</td></tr>
+    <tr><td>Budget Intelligence</td><td><strong>€${engines.budget?.gap ?? '—'}M</strong> gap</td><td>Urgency: ${engines.budget?.urgency ?? '—'}/5</td></tr>
+</table>
+` : '<p><em>No engine data available for this year.</em></p>'}
+
+${trajectory && trajectory.labels?.length > 0 ? `
+<h2>60-Year Trajectory</h2>
+<table>
+    <tr><th>Year</th><th>Stewardship</th><th>Ecology</th><th>Wildlife</th><th>SOM</th><th>Population</th></tr>
+    ${trajectory.labels.map((y, i) => `
+    <tr>
+        <td>${y}</td>
+        <td>${trajectory.stewardship_capacity[i]}</td>
+        <td>${trajectory.ecological_equilibrium[i]}</td>
+        <td>${trajectory.wildlife_balance[i]}</td>
+        <td>${trajectory.soil_organic_matter[i]}</td>
+        <td>${trajectory.population_index[i]}</td>
+    </tr>`).join('')}
+</table>
+` : ''}
+
+<div class="footer">
+    <p>This report was generated by the ROA-TIS Territorial Intelligence System. Data is based on computed engine scores and field observations.</p>
+    <p>© ROA-TIS ${new Date().getFullYear()} — Territorial Intelligence as Infrastructure</p>
+</div>
+</body></html>`;
+
+        // Open in new window for print/save as PDF
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(reportHTML);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => printWindow.print(), 500);
+
+    } catch (err) {
+        console.error('PDF export error:', err);
+    }
+
+    btn.textContent = '📄 Download Territory Report (PDF)';
+    btn.disabled = false;
 });

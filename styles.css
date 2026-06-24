@@ -1,3 +1,117 @@
+/* ===== LOGIN SCREEN ===== */
+.login-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: #0f1419;
+}
+.login-screen.hidden { display: none; }
+.login-card {
+    background: #1a1f25;
+    border-radius: 16px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    border: 1px solid #2e3640;
+}
+.login-brand {
+    text-align: center;
+    margin-bottom: 32px;
+}
+.login-brand .brand-icon { font-size: 36px; color: #4ecdc4; }
+.login-brand h1 { font-size: 28px; color: #e7e9ea; margin: 8px 0 4px; }
+.login-brand p { font-size: 14px; color: #8899a6; }
+.login-field { margin-bottom: 16px; }
+.login-field label { display: block; font-size: 12px; color: #8899a6; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.login-field input {
+    width: 100%;
+    padding: 12px 16px;
+    background: #0f1419;
+    border: 1px solid #2e3640;
+    border-radius: 8px;
+    color: #e7e9ea;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.login-field input:focus { border-color: #4ecdc4; }
+.login-btn {
+    width: 100%;
+    padding: 14px;
+    background: #4ecdc4;
+    color: #0f1419;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s;
+}
+.login-btn:hover { opacity: 0.9; }
+.login-error { color: #ff6b6b; font-size: 13px; margin-top: 12px; text-align: center; min-height: 18px; }
+.login-demo { margin-top: 24px; padding-top: 20px; border-top: 1px solid #2e3640; }
+.login-demo p { font-size: 12px; color: #8899a6; text-align: center; margin-bottom: 10px; }
+.demo-accounts { display: flex; gap: 8px; justify-content: center; }
+.demo-btn {
+    padding: 8px 14px;
+    background: #2e3640;
+    border: 1px solid #3e4a56;
+    border-radius: 6px;
+    color: #e7e9ea;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.demo-btn:hover { background: #3e4a56; }
+.user-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    background: #2e3640;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #e7e9ea;
+}
+.user-badge .role-tag {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.role-tag.authority { background: rgba(78,205,196,0.2); color: #4ecdc4; }
+.role-tag.farmer { background: rgba(46,204,113,0.2); color: #2ecc71; }
+.role-tag.investor { background: rgba(247,183,49,0.2); color: #f7b731; }
+.btn-logout {
+    padding: 4px 10px;
+    background: transparent;
+    border: 1px solid #3e4a56;
+    border-radius: 4px;
+    color: #8899a6;
+    font-size: 11px;
+    cursor: pointer;
+}
+.btn-logout:hover { border-color: #ff6b6b; color: #ff6b6b; }
+
+/* ===== EXPORT BAR ===== */
+.export-bar { display: flex; justify-content: flex-end; margin-top: 16px; }
+.btn-export {
+    padding: 10px 20px;
+    background: #2e3640;
+    border: 1px solid #4ecdc4;
+    border-radius: 8px;
+    color: #4ecdc4;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-export:hover { background: #4ecdc4; color: #0f1419; }
+
 /* ===== RESET & BASE ===== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {

@@ -8,6 +8,39 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
+    <!-- ========== LOGIN SCREEN ========== -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-card">
+            <div class="login-brand">
+                <span class="brand-icon">◉</span>
+                <h1>ROA-TIS</h1>
+                <p>Territorial Intelligence System</p>
+            </div>
+            <form id="login-form">
+                <div class="login-field">
+                    <label>Username</label>
+                    <input type="text" id="login-username" placeholder="Enter username" autocomplete="username" />
+                </div>
+                <div class="login-field">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password" />
+                </div>
+                <button type="submit" class="login-btn">Sign In</button>
+                <div id="login-error" class="login-error"></div>
+            </form>
+            <div class="login-demo">
+                <p>Demo Accounts:</p>
+                <div class="demo-accounts">
+                    <button class="demo-btn" data-user="authority" data-pass="authority123">🏛️ Authority</button>
+                    <button class="demo-btn" data-user="farmer" data-pass="farmer123">🫒 Farmer</button>
+                    <button class="demo-btn" data-user="investor" data-pass="investor123">📈 Investor</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MAIN APP (hidden until login) ========== -->
+    <div id="main-app" style="display:none;">
     <!-- Top Navigation -->
     <nav class="top-nav">
         <div class="nav-brand">
@@ -44,6 +77,11 @@
                 <option value="2020">2020</option>
             </select>
             <span class="status-dot online" id="api-status"></span>
+            <div class="user-badge" id="user-badge">
+                <span id="user-display">—</span>
+                <span class="role-tag" id="user-role-tag">—</span>
+                <button class="btn-logout" id="btn-logout">Logout</button>
+            </div>
         </div>
     </nav>
 
@@ -197,6 +235,11 @@
                 <span class="alert-icon">⚠</span>
                 <span class="alert-text"><strong>ALERT:</strong> Black Swan Escalation Protocol Active — BSEP-001 — Emergency Board convened. Immediate dissemination required.</span>
                 <button class="alert-action">View Routing →</button>
+            </div>
+
+            <!-- Export -->
+            <div class="export-bar">
+                <button class="btn-export" id="btn-export-pdf">📄 Download Territory Report (PDF)</button>
             </div>
         </div>
     </div>
@@ -1369,6 +1412,8 @@ All inputs from:  Data_Entry sheet, row ROA-ELY-2025
 
         </div>
     </div>
+
+    </div><!-- /main-app -->
 
     <script src="app.js"></script>
 </body>

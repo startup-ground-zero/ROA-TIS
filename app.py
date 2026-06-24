@@ -3,9 +3,50 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from database import get_db, init_db
 from engines import recalculate_all
+import hashlib
 
 app = Flask(__name__)
 CORS(app)
+
+
+# ── Authentication ──
+@app.route("/api/auth/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    username = data.get("username", "").strip()
+    password = data.get("password", "")
+
+    if not username or not password:
+        return jsonify({"error": "Username and password required"}), 400
+
+    conn = get_db()
+    user = conn.execute(
+        "SELECT * FROM users WHERE username = ?", (username,)
+    ).fetchone()
+    conn.close()
+
+    if not user:
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    pw_hash = hashlib.sha256(password.encode()).hexdigest()
+    if pw_hash != user["password_hash"]:
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    return jsonify({
+        "username": user["username"],
+        "role": user["role"],
+        "display_name": user["display_name"],
+        "territory_id": user["territory_id"],
+    })
+
+
+@app.route("/api/auth/users")
+def list_users():
+    """List available demo accounts (no passwords exposed)."""
+    conn = get_db()
+    users = conn.execute("SELECT username, role, display_name FROM users").fetchall()
+    conn.close()
+    return jsonify([dict(u) for u in users])
 
 
 # ── Dashboard KPIs ──
