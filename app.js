@@ -335,17 +335,28 @@ document.querySelector('.btn-submit')?.addEventListener('click', async (e) => {
 
 document.querySelector('.btn-compute')?.addEventListener('click', async (e) => {
     const btn = e.target;
-    btn.textContent = '\u21BB Fetching from database...';
+    btn.textContent = '\u21BB Running all engines...';
     btn.style.opacity = '0.7';
     try {
-        const engines = await fetchJSON(`/engines/${TERRITORY}/${YEAR}`);
+        // Trigger server-side recalculation
+        const recalcRes = await fetch(`${API_BASE}/recalculate/${TERRITORY}/${YEAR}`, { method: 'POST' });
+        if (!recalcRes.ok) throw new Error('Recalculate failed');
+        const recalcData = await recalcRes.json();
+
+        // Reload updated data
+        const [dashboard, engines] = await Promise.all([
+            fetchJSON(`/dashboard/${TERRITORY}/${YEAR}`),
+            fetchJSON(`/engines/${TERRITORY}/${YEAR}`),
+        ]);
+
+        updateKPIs(dashboard.kpis);
         updateEngineCards(engines);
-        btn.textContent = '\u2713 All engines refreshed from DB';
+        btn.textContent = '\u2713 All engines recalculated';
         btn.style.opacity = '1';
         btn.style.background = '#2ecc71';
     } catch {
-        btn.textContent = '\u2717 API error';
+        btn.textContent = '\u2717 Recalculation error';
         btn.style.background = '#e74c3c';
     }
-    setTimeout(() => { btn.textContent = '\u21BB Recompute All Engines'; btn.style.background = '#4ecdc4'; btn.style.opacity = '1'; }, 2500);
+    setTimeout(() => { btn.textContent = '\u21BB Recompute All Engines'; btn.style.background = '#4ecdc4'; btn.style.opacity = '1'; }, 3000);
 });

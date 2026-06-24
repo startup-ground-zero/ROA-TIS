@@ -2,6 +2,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from database import get_db, init_db
+from engines import recalculate_all
 
 app = Flask(__name__)
 CORS(app)
@@ -260,10 +261,20 @@ def list_observations(farm_id):
     return jsonify([dict(r) for r in rows])
 
 
+# ── Recalculate Engines ──
+@app.route("/api/recalculate/<territory_id>/<int:year>", methods=["POST"])
+def recalculate(territory_id, year):
+    """Run all engines and update scores in the database."""
+    results = recalculate_all(territory_id, year)
+    if not results:
+        return jsonify({"error": "No data to recalculate"}), 404
+    return jsonify({"status": "ok", "scores": results})
+
+
 # ── Health check ──
 @app.route("/api/health")
 def health():
-    return jsonify({"status": "ok", "version": "0.1.0", "stage": 1})
+    return jsonify({"status": "ok", "version": "0.2.0", "stage": 2})
 
 
 if __name__ == "__main__":
