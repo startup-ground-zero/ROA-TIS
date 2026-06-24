@@ -28,6 +28,15 @@ def seed():
     # ── Farms ──
     farms = [
         ("farm-elysian", "elysian", "Elysian EVOO", "Sella, Achaea", 38.1547, 21.7683, 7.5, 1230, 1, "Alexandros Liakopoulos", None, "Unknown"),
+        ("farm-sella", "sella", "Sella Grove", "Sella, Achaea", 38.16, 21.77, 4.2, 680, 1, "Nikos Papadopoulos", None, "Active"),
+        ("farm-kastritsi", "kastritsi", "Kastritsi Estate", "Kastritsi, Achaea", 38.22, 21.73, 5.0, 820, 0, "Maria Kosta", None, "Active"),
+        ("farm-wgreece", "wgreece", "Western Greece Coop", "Patras, Achaea", 38.25, 21.74, 12.0, 2100, 1, "Cooperative", None, "Active"),
+        ("farm-chalandritsa", "chalandritsa", "Chalandritsa Farm", "Chalandritsa, Achaea", 38.18, 21.72, 6.0, 950, 0, "Giorgos Andrikos", None, "Unknown"),
+        ("farm-messinia", "messinia", "Messinia Groves", "Kalamata, Messinia", 37.04, 22.11, 9.0, 1500, 1, "Eleni Messini", None, "Active"),
+        ("farm-crete", "crete", "Cretan Heritage", "Chania, Crete", 35.51, 24.02, 8.5, 1400, 1, "Manolis Kretikos", None, "Active"),
+        ("farm-andalusia", "andalusia", "Andalusia Estate", "Jaén, Spain", 37.77, -3.79, 15.0, 3200, 0, "Carlos Olivar", None, "Active"),
+        ("farm-tuscany", "tuscany", "Tuscan Hills", "Siena, Italy", 43.32, 11.33, 6.5, 1050, 1, "Marco Toscani", None, "Active"),
+        ("farm-alentejo", "alentejo", "Alentejo Grove", "Beja, Portugal", 38.02, -7.87, 11.0, 1800, 0, "João Oliveira", None, "Active"),
     ]
     c.executemany(
         "INSERT OR REPLACE INTO farms (id, territory_id, name, location, latitude, longitude, area_ha, tree_count, organic_certified, steward_name, steward_age, succession_status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -156,6 +165,18 @@ def seed():
         ("farm-elysian", 2022, 5500, 1265, 23.0, 78.0, 0.25, 218, 10800),
         ("farm-elysian", 2021, 5000, 1150, 23.0, 76.5, 0.28, 210, 10200),
         ("farm-elysian", 2020, 4800, 1104, 23.0, 75.0, 0.30, 205, 9800),
+    ]
+    # Also add 2025 production for all other farms
+    production += [
+        ("farm-sella", 2025, 3200, 736, 23.0, 76.0, 0.25, 142, 7200),
+        ("farm-kastritsi", 2025, 4100, 943, 23.0, 77.5, 0.22, 168, 8900),
+        ("farm-wgreece", 2025, 9500, 2185, 23.0, 74.0, 0.30, 410, 21000),
+        ("farm-chalandritsa", 2025, 4800, 1104, 23.0, 75.0, 0.28, 195, 10500),
+        ("farm-messinia", 2025, 7200, 1656, 23.0, 82.5, 0.16, 290, 15800),
+        ("farm-crete", 2025, 6800, 1564, 23.0, 81.0, 0.18, 275, 14500),
+        ("farm-andalusia", 2025, 12000, 2760, 23.0, 72.0, 0.35, 520, 28000),
+        ("farm-tuscany", 2025, 5200, 1196, 23.0, 84.0, 0.14, 215, 11800),
+        ("farm-alentejo", 2025, 8800, 2024, 23.0, 73.5, 0.32, 360, 19200),
     ]
     c.executemany(
         "INSERT OR REPLACE INTO production_data (farm_id, year, olive_harvest_kg, oil_extracted_l, extraction_rate_pct, evoo_quality_score, acidity_pct, carbon_stored_tco2, total_expenses_eur) VALUES (?,?,?,?,?,?,?,?,?)",

@@ -339,6 +339,36 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Expenses Panel (hidden by default, shown via nav) -->
+                <div class="expenses-panel" id="expenses-panel" style="display:none;">
+                    <h3>Annual Expenses — <span id="expenses-year">2025</span></h3>
+                    <div class="expenses-summary">
+                        <div class="expense-card">
+                            <span class="expense-label">Total Annual Expenses</span>
+                            <span class="expense-value" id="expense-total">€12,800</span>
+                        </div>
+                        <div class="expense-card">
+                            <span class="expense-label">Cost per Hectare</span>
+                            <span class="expense-value" id="expense-per-ha">€1,707</span>
+                        </div>
+                        <div class="expense-card">
+                            <span class="expense-label">Cost per Tree</span>
+                            <span class="expense-value" id="expense-per-tree">€10.41</span>
+                        </div>
+                    </div>
+                    <h4>Breakdown by Category</h4>
+                    <div class="expense-breakdown">
+                        <div class="expense-row"><span>Labour (pruning, harvest)</span><span>€5,120</span><span class="expense-pct">40%</span></div>
+                        <div class="expense-row"><span>Irrigation & water</span><span>€2,560</span><span class="expense-pct">20%</span></div>
+                        <div class="expense-row"><span>Organic inputs & compost</span><span>€1,920</span><span class="expense-pct">15%</span></div>
+                        <div class="expense-row"><span>Equipment maintenance</span><span>€1,280</span><span class="expense-pct">10%</span></div>
+                        <div class="expense-row"><span>Certification & compliance</span><span>€960</span><span class="expense-pct">7.5%</span></div>
+                        <div class="expense-row"><span>Transport & logistics</span><span>€640</span><span class="expense-pct">5%</span></div>
+                        <div class="expense-row"><span>Miscellaneous</span><span>€320</span><span class="expense-pct">2.5%</span></div>
+                    </div>
+                    <p class="expense-note">Source: Production data for the selected territory and year.</p>
+                </div>
             </main>
         </div>
     </div>
