@@ -5,9 +5,9 @@ const API_BASE = 'http://127.0.0.1:5000/api';
 let currentUser = JSON.parse(localStorage.getItem('roatis_user') || 'null');
 
 const ROLE_TABS = {
-    authority: ['dashboard', 'map', 'farmer', 'engines', 'investor', 'architecture', 'api'],
+    authority: ['dashboard', 'map', 'compare', 'farmer', 'engines', 'investor', 'architecture', 'api'],
     farmer: ['farmer', 'dashboard', 'map', 'engines'],
-    investor: ['investor', 'dashboard', 'map', 'architecture'],
+    investor: ['investor', 'dashboard', 'map', 'compare', 'architecture'],
 };
 
 function showLogin() {
@@ -594,6 +594,8 @@ document.getElementById('btn-submit-obs')?.addEventListener('click', async (e) =
         buffer_zone_clear: bufferClear,
         access_paths_passable: pathsPassable,
         no_ignition_risk: noIgnition,
+        photo: obsPhotoBase64 || null,
+        observer: currentUser?.username || 'unknown',
     };
 
     btn.disabled = true;
@@ -607,11 +609,15 @@ document.getElementById('btn-submit-obs')?.addEventListener('click', async (e) =
         });
         if (res.ok) {
             showFeedback('Observation saved! Recalculating engines...', 'success');
+            toast('Observation saved successfully', 'success');
             // Clear form
             if (document.getElementById('obs-description')) document.getElementById('obs-description').value = '';
             if (document.getElementById('obs-buffer')) document.getElementById('obs-buffer').checked = false;
             if (document.getElementById('obs-paths')) document.getElementById('obs-paths').checked = false;
             if (document.getElementById('obs-ignition')) document.getElementById('obs-ignition').checked = false;
+            if (document.getElementById('obs-photo')) document.getElementById('obs-photo').value = '';
+            if (document.getElementById('obs-photo-preview')) document.getElementById('obs-photo-preview').style.display = 'none';
+            obsPhotoBase64 = null;
 
             // Auto-recalculate after observation
             await fetch(`${API_BASE}/recalculate/${TERRITORY}/${YEAR}`, { method: 'POST' });
@@ -1010,4 +1016,208 @@ function maybeLoadAudit() {
 }
 // call on data load
 const _origLoadAllData = loadAllData;
-loadAllData = async function() { await _origLoadAllData(); maybeLoadAudit(); };
+loadAllData = async function() { await _origLoadAllData(); maybeLoadAudit(); checkAlerts(); };
+
+/* ===== #1 TOAST NOTIFICATIONS ===== */
+function toast(message, type = 'info', duration = 4000) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.textContent = message;
+    container.appendChild(el);
+    setTimeout(() => { el.classList.add('fade-out'); setTimeout(() => el.remove(), 300); }, duration);
+}
+
+/* ===== #2 TERRITORY COMPARISON ===== */
+document.getElementById('btn-compare')?.addEventListener('click', async () => {
+    const a = document.getElementById('compare-a').value;
+    const b = document.getElementById('compare-b').value;
+    const results = document.getElementById('compare-results');
+    if (a === b) { toast('Select two different territories', 'warning'); return; }
+
+    try {
+        const [da, db] = await Promise.all([
+            fetchJSON(`/dashboard/${a}/${YEAR}`),
+            fetchJSON(`/dashboard/${b}/${YEAR}`),
+        ]);
+        const nameA = document.querySelector(`#compare-a option[value="${a}"]`).textContent;
+        const nameB = document.querySelector(`#compare-b option[value="${b}"]`).textContent;
+
+        function row(label, va, vb) {
+            return `<div class="compare-row"><span class="label">${label}</span><span class="value">${va ?? '—'}</span></div>`;
+        }
+        function card(name, kpis) {
+            return `<div class="compare-card"><h3>${name}</h3>
+                <div class="compare-row"><span class="label">RTI Score</span><span class="value">${kpis.rti ?? '—'}</span></div>
+                <div class="compare-row"><span class="label">TARS Risk</span><span class="value">${kpis.tars ?? '—'}</span></div>
+                <div class="compare-row"><span class="label">BSEP Exposure</span><span class="value">${kpis.bsep ?? '—'}</span></div>
+                <div class="compare-row"><span class="label">Budget Gap</span><span class="value">${kpis.budget_gap != null ? '€'+kpis.budget_gap+'M' : '—'}</span></div>
+            </div>`;
+        }
+        results.innerHTML = card(nameA, da.kpis) + card(nameB, db.kpis);
+    } catch { results.innerHTML = '<p style="color:#ff6b6b">Error loading comparison data</p>'; }
+});
+
+/* ===== #3 CSV EXPORT ===== */
+document.getElementById('btn-export-csv')?.addEventListener('click', async () => {
+    try {
+        const data = await fetchJSON(`/territories/scores/${YEAR}`);
+        if (!data || !data.length) { toast('No data to export', 'warning'); return; }
+        const headers = ['Territory', 'Latitude', 'Longitude', 'RTI Score'];
+        const rows = data.map(t => [t.name, t.latitude, t.longitude, t.rti ?? ''].join(','));
+        const csv = [headers.join(','), ...rows].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `roatis_scores_${YEAR}.csv`; a.click();
+        URL.revokeObjectURL(url);
+        toast('CSV downloaded', 'success');
+    } catch { toast('Export failed', 'error'); }
+});
+
+/* ===== #4 KEYBOARD SHORTCUTS ===== */
+document.addEventListener('keydown', (e) => {
+    // Only if not in an input field
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+    const tabs = document.querySelectorAll('.nav-tab:not([style*="display: none"])');
+    const num = parseInt(e.key);
+    if (num >= 1 && num <= tabs.length) {
+        tabs[num - 1]?.click();
+        return;
+    }
+    if (e.key === '?' && !e.ctrlKey) {
+        toast('Shortcuts: 1-9 = tabs, R = reload, T = theme', 'info', 5000);
+    }
+    if (e.key === 'r' || e.key === 'R') {
+        loadAllData();
+        toast('Refreshing data...', 'info', 2000);
+    }
+    if (e.key === 't' && !e.ctrlKey) {
+        document.getElementById('btn-theme-toggle')?.click();
+    }
+});
+
+/* ===== #5 SESSION TIMEOUT ===== */
+let sessionTimer = null;
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+
+function resetSessionTimer() {
+    if (sessionTimer) clearTimeout(sessionTimer);
+    if (!currentUser) return;
+    sessionTimer = setTimeout(() => {
+        toast('Session expired — logging out', 'warning', 3000);
+        setTimeout(() => {
+            localStorage.removeItem('roatis_user');
+            currentUser = null;
+            showLogin();
+        }, 1500);
+    }, SESSION_TIMEOUT_MS);
+}
+['click', 'keydown', 'mousemove', 'scroll'].forEach(evt =>
+    document.addEventListener(evt, resetSessionTimer, { passive: true })
+);
+resetSessionTimer();
+
+/* ===== #6 OBSERVATION PHOTOS ===== */
+let obsPhotoBase64 = null;
+document.getElementById('obs-photo')?.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    const preview = document.getElementById('obs-photo-preview');
+    if (!file) { obsPhotoBase64 = null; if (preview) preview.style.display = 'none'; return; }
+    if (file.size > 2 * 1024 * 1024) { toast('Photo must be under 2MB', 'warning'); e.target.value = ''; return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        obsPhotoBase64 = ev.target.result;
+        if (preview) { preview.src = obsPhotoBase64; preview.style.display = 'block'; }
+    };
+    reader.readAsDataURL(file);
+});
+
+/* ===== #7 ALERT NOTIFICATIONS ===== */
+async function checkAlerts() {
+    try {
+        const scores = await fetchJSON(`/territories/scores/${YEAR}`);
+        const emergencies = scores.filter(t => t.rti !== null && t.rti < 40);
+        const banner = document.getElementById('alert-banner');
+        const text = document.getElementById('alert-banner-text');
+        if (emergencies.length > 0 && banner && text) {
+            const names = emergencies.map(t => t.name).join(', ');
+            text.textContent = `CRITICAL: ${emergencies.length} territory(ies) below RTI 40 — ${names}. Immediate attention required.`;
+            banner.style.display = 'flex';
+        } else if (banner) {
+            banner.style.display = 'none';
+        }
+    } catch { /* silent */ }
+}
+
+/* ===== #8 MULTI-LANGUAGE (i18n) ===== */
+const TRANSLATIONS = {
+    en: {
+        dashboard: 'Authority Dashboard', map: 'Territory Map', farmer: 'Farmer Portal',
+        engines: 'Engine View', investor: 'Investor & Commercial', architecture: 'Architecture & Research',
+        api: 'API Docs', compare: 'Compare', compare_title: 'Territory Comparison',
+        logout: 'Logout', submit_obs: 'Submit Observation', export_pdf: '📄 Download Territory Report (PDF)',
+        export_csv: '📊 Export CSV', loading: 'Loading territory data...'
+    },
+    el: {
+        dashboard: 'Πίνακας Αρχής', map: 'Χάρτης', farmer: 'Πύλη Αγρότη',
+        engines: 'Μηχανές', investor: 'Επενδυτές', architecture: 'Αρχιτεκτονική',
+        api: 'API Τεκμ.', compare: 'Σύγκριση', compare_title: 'Σύγκριση Εδαφών',
+        logout: 'Αποσύνδεση', submit_obs: 'Υποβολή', export_pdf: '📄 Αναφορά (PDF)',
+        export_csv: '📊 Εξαγωγή CSV', loading: 'Φόρτωση δεδομένων...'
+    },
+    es: {
+        dashboard: 'Panel de Autoridad', map: 'Mapa', farmer: 'Portal Agricultor',
+        engines: 'Motores', investor: 'Inversores', architecture: 'Arquitectura',
+        api: 'Docs API', compare: 'Comparar', compare_title: 'Comparación Territorial',
+        logout: 'Cerrar sesión', submit_obs: 'Enviar', export_pdf: '📄 Informe (PDF)',
+        export_csv: '📊 Exportar CSV', loading: 'Cargando datos...'
+    },
+    it: {
+        dashboard: 'Pannello Autorità', map: 'Mappa', farmer: 'Portale Agricoltore',
+        engines: 'Motori', investor: 'Investitori', architecture: 'Architettura',
+        api: 'Docs API', compare: 'Confronta', compare_title: 'Confronto Territoriale',
+        logout: 'Esci', submit_obs: 'Invia', export_pdf: '📄 Report (PDF)',
+        export_csv: '📊 Esporta CSV', loading: 'Caricamento dati...'
+    },
+    pt: {
+        dashboard: 'Painel Autoridade', map: 'Mapa', farmer: 'Portal Agricultor',
+        engines: 'Motores', investor: 'Investidores', architecture: 'Arquitetura',
+        api: 'Docs API', compare: 'Comparar', compare_title: 'Comparação Territorial',
+        logout: 'Sair', submit_obs: 'Enviar', export_pdf: '📄 Relatório (PDF)',
+        export_csv: '📊 Exportar CSV', loading: 'Carregando dados...'
+    },
+};
+
+function setLanguage(lang) {
+    const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+    localStorage.setItem('roatis_lang', lang);
+    // Update nav tabs
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        const key = tab.dataset.view;
+        if (t[key]) tab.textContent = t[key];
+    });
+    // Update other translatable elements
+    const logout = document.getElementById('btn-logout');
+    if (logout) logout.textContent = t.logout;
+    const submitObs = document.getElementById('btn-submit-obs');
+    if (submitObs) submitObs.textContent = t.submit_obs;
+    const pdfBtn = document.getElementById('btn-export-pdf');
+    if (pdfBtn) pdfBtn.textContent = t.export_pdf;
+    const csvBtn = document.getElementById('btn-export-csv');
+    if (csvBtn) csvBtn.textContent = t.export_csv;
+    const loadingText = document.querySelector('.loading-text');
+    if (loadingText) loadingText.textContent = t.loading;
+    const compareTitle = document.querySelector('.compare-title');
+    if (compareTitle) compareTitle.textContent = t.compare_title;
+}
+
+// Init language
+(function initLang() {
+    const saved = localStorage.getItem('roatis_lang') || 'en';
+    const sel = document.getElementById('lang-select');
+    if (sel) sel.value = saved;
+    setLanguage(saved);
+})();
+document.getElementById('lang-select')?.addEventListener('change', (e) => setLanguage(e.target.value));

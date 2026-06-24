@@ -6,10 +6,15 @@
     <title>ROA-TIS | Territorial Intelligence System</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#0f1419" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
     <!-- ========== LOGIN SCREEN ========== -->
     <div id="login-screen" class="login-screen">
         <div class="login-card">
@@ -62,6 +67,7 @@
             <button class="nav-tab" data-view="engines">Engine View</button>
             <button class="nav-tab" data-view="investor">Investor &amp; Commercial</button>
             <button class="nav-tab" data-view="architecture">Architecture &amp; Research</button>
+            <button class="nav-tab" data-view="compare">Compare</button>
             <button class="nav-tab" data-view="api">API Docs</button>
         </div>
         <div class="nav-meta">
@@ -86,6 +92,13 @@
                 <option value="2020">2020</option>
             </select>
             <span class="status-dot online" id="api-status"></span>
+            <select id="lang-select" class="nav-select nav-select-sm" title="Language">
+                <option value="en">EN</option>
+                <option value="el">ΕΛ</option>
+                <option value="es">ES</option>
+                <option value="it">IT</option>
+                <option value="pt">PT</option>
+            </select>
             <button class="btn-theme-toggle" id="btn-theme-toggle" title="Toggle theme">🌙</button>
             <div class="user-badge" id="user-badge">
                 <span id="user-display">—</span>
@@ -94,6 +107,13 @@
             </div>
         </div>
     </nav>
+
+    <!-- Alert Banner -->
+    <div id="alert-banner" class="alert-banner" style="display:none;">
+        <span class="alert-banner-icon">⚠️</span>
+        <span id="alert-banner-text"></span>
+        <button class="alert-banner-close" onclick="this.parentElement.style.display='none'">✕</button>
+    </div>
 
     <!-- ========== AUTHORITY DASHBOARD ========== -->
     <div id="view-dashboard" class="view active">
@@ -250,6 +270,7 @@
             <!-- Export -->
             <div class="export-bar">
                 <button class="btn-export" id="btn-export-pdf">📄 Download Territory Report (PDF)</button>
+                <button class="btn-csv" id="btn-export-csv">📊 Export CSV</button>
             </div>
 
             <!-- Audit Log (Authority only) -->
@@ -410,6 +431,11 @@
                                     <label class="obs-check"><input type="checkbox" id="obs-paths"> Access paths passable</label>
                                     <label class="obs-check"><input type="checkbox" id="obs-ignition"> No ignition risk detected</label>
                                 </div>
+                            </div>
+                            <div class="obs-form-row">
+                                <label class="obs-label">Photo (optional)</label>
+                                <input type="file" id="obs-photo" accept="image/*" class="obs-input obs-file-input" />
+                                <img id="obs-photo-preview" class="obs-photo-preview" style="display:none" />
                             </div>
                             <button class="btn-submit" id="btn-submit-obs">Submit Observation</button>
                             <div id="obs-feedback" class="obs-feedback"></div>
@@ -1448,6 +1474,42 @@ All inputs from:  Data_Entry sheet, row ROA-ELY-2025
         </div>
     </div>
 
+    <!-- ========== TERRITORY COMPARISON ========== -->
+    <div id="view-compare" class="view">
+        <div class="compare-layout">
+            <h2 class="compare-title" data-i18n="compare_title">Territory Comparison</h2>
+            <div class="compare-selectors">
+                <select id="compare-a" class="nav-select">
+                    <option value="elysian">Elysian EVOO</option>
+                    <option value="sella">Sella</option>
+                    <option value="kastritsi">Kastritsi</option>
+                    <option value="wgreece">Western Greece</option>
+                    <option value="chalandritsa">Chalandritsa</option>
+                    <option value="messinia">Messinia</option>
+                    <option value="crete">Crete</option>
+                    <option value="andalusia">Andalusia</option>
+                    <option value="tuscany">Tuscany</option>
+                    <option value="alentejo">Alentejo</option>
+                </select>
+                <span class="compare-vs">vs</span>
+                <select id="compare-b" class="nav-select">
+                    <option value="sella">Sella</option>
+                    <option value="elysian">Elysian EVOO</option>
+                    <option value="kastritsi">Kastritsi</option>
+                    <option value="wgreece">Western Greece</option>
+                    <option value="chalandritsa">Chalandritsa</option>
+                    <option value="messinia">Messinia</option>
+                    <option value="crete">Crete</option>
+                    <option value="andalusia">Andalusia</option>
+                    <option value="tuscany">Tuscany</option>
+                    <option value="alentejo">Alentejo</option>
+                </select>
+                <button class="btn-compare" id="btn-compare">Compare</button>
+            </div>
+            <div id="compare-results" class="compare-results"></div>
+        </div>
+    </div>
+
     <!-- ========== API DOCUMENTATION ========== -->
     <div id="view-api" class="view">
         <div class="api-docs-layout">
@@ -1493,5 +1555,10 @@ Response:
     </div><!-- /main-app -->
 
     <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(() => {});
+        }
+    </script>
 </body>
 </html>

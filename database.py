@@ -148,6 +148,7 @@ def init_db():
             buffer_zone_clear INTEGER,
             access_paths_passable INTEGER,
             no_ignition_risk INTEGER,
+            photo TEXT,
             confidence_score REAL,
             created_at TEXT DEFAULT (datetime('now'))
         )

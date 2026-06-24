@@ -9,6 +9,16 @@ app = Flask(__name__)
 CORS(app)
 
 
+def log_audit(username, action, detail=None):
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO audit_log (username, action, detail, ip) VALUES (?,?,?,?)",
+        (username, action, detail, request.remote_addr),
+    )
+    conn.commit()
+    conn.close()
+
+
 # ── Authentication ──
 @app.route("/api/auth/login", methods=["POST"])
 def login():
@@ -26,12 +36,15 @@ def login():
     conn.close()
 
     if not user:
+        log_audit(username, "LOGIN_FAILED", "User not found")
         return jsonify({"error": "Invalid credentials"}), 401
 
     pw_hash = hashlib.sha256(password.encode()).hexdigest()
     if pw_hash != user["password_hash"]:
+        log_audit(username, "LOGIN_FAILED", "Wrong password")
         return jsonify({"error": "Invalid credentials"}), 401
 
+    log_audit(username, "LOGIN", f"Role: {user['role']}")
     return jsonify({
         "username": user["username"],
         "role": user["role"],
@@ -49,6 +62,16 @@ def list_users():
     return jsonify([dict(u) for u in users])
 
 
+@app.route("/api/audit-log")
+def audit_log():
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT * FROM audit_log ORDER BY timestamp DESC LIMIT 100"
+    ).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
 # ── Dashboard KPIs ──
 @app.route("/api/dashboard/<territory_id>/<int:year>")
 def dashboard(territory_id, year):
@@ -56,6 +79,10 @@ def dashboard(territory_id, year):
     scores = conn.execute(
         "SELECT * FROM engine_scores WHERE territory_id = ? AND year = ?",
         (territory_id, year),
+    ).fetchone()
+    prev_scores = conn.execute(
+        "SELECT rti_score, tars_score, bsep_score, budget_gap FROM engine_scores WHERE territory_id = ? AND year = ?",
+        (territory_id, year - 1),
     ).fetchone()
     commands = conn.execute(
         "SELECT * FROM command_center WHERE territory_id = ? AND year = ?",
@@ -70,6 +97,15 @@ def dashboard(territory_id, year):
     if not scores:
         return jsonify({"error": "No data found"}), 404
 
+    prev_kpis = None
+    if prev_scores:
+        prev_kpis = {
+            "rti": prev_scores["rti_score"],
+            "tars": prev_scores["tars_score"],
+            "bsep": prev_scores["bsep_score"],
+            "budget_gap": prev_scores["budget_gap"],
+        }
+
     return jsonify({
         "kpis": {
             "rti": scores["rti_score"],
@@ -77,6 +113,7 @@ def dashboard(territory_id, year):
             "bsep": scores["bsep_score"],
             "budget_gap": scores["budget_gap"],
         },
+        "prev_kpis": prev_kpis,
         "command_center": [
             {
                 "question": c["question"],
@@ -226,6 +263,19 @@ def territories():
     return jsonify([dict(r) for r in rows])
 
 
+@app.route("/api/territories/scores/<int:year>")
+def territories_scores(year):
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT t.id, t.name, t.latitude, t.longitude, e.rti_score as rti "
+        "FROM territories t LEFT JOIN engine_scores e ON t.id = e.territory_id AND e.year = ? "
+        "ORDER BY t.name",
+        (year,),
+    ).fetchall()
+    conn.close()
+    return jsonify([dict(r) for r in rows])
+
+
 # ── Farmer Portal ──
 @app.route("/api/farm/<farm_id>")
 def farm_detail(farm_id):
@@ -274,8 +324,8 @@ def submit_observation(farm_id):
     conn.execute(
         """INSERT INTO observations
            (farm_id, date, observation_type, description,
-            buffer_zone_clear, access_paths_passable, no_ignition_risk)
-           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            buffer_zone_clear, access_paths_passable, no_ignition_risk, photo)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             farm_id,
             data["date"],
@@ -284,10 +334,12 @@ def submit_observation(farm_id):
             1 if data.get("buffer_zone_clear") else 0,
             1 if data.get("access_paths_passable") else 0,
             1 if data.get("no_ignition_risk") else 0,
+            data.get("photo"),
         ),
     )
     conn.commit()
     conn.close()
+    log_audit(data.get("observer", "unknown"), "OBSERVATION", f"Farm: {farm_id}, Type: {data.get('observation_type', 'general')}")
     return jsonify({"status": "ok", "message": "Observation recorded"}), 201
 
 
