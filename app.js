@@ -525,3 +525,80 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
     loadAllData();
 });
+
+// ===== ALERT BANNER — View Routing =====
+document.querySelector('.alert-action')?.addEventListener('click', () => {
+    switchToView('engines');
+});
+
+// ===== FARMER NAV ITEMS =====
+document.querySelectorAll('.farmer-nav-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.farmer-nav-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        const label = item.textContent.trim();
+        if (label === 'Data Entry') {
+            document.querySelector('.today-observation')?.scrollIntoView({ behavior: 'smooth' });
+        } else if (label === 'My Grove Health') {
+            switchToView('engines');
+        } else if (label === 'Alerts') {
+            switchToView('dashboard');
+            setTimeout(() => document.querySelector('.alert-banner')?.scrollIntoView({ behavior: 'smooth' }), 100);
+        } else if (label === 'Daily Workings') {
+            document.querySelector('.workings-calendar')?.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+});
+
+// ===== ENGINE VIEW TERRITORY SELECT =====
+document.querySelector('.engine-select')?.addEventListener('change', (e) => {
+    const val = e.target.value;
+    // Parse territory from option text: "ROA Elysian EVOO — 2025"
+    const map = {
+        'ROA Elysian EVOO': 'elysian',
+        'ROA Sella': 'sella',
+        'ROA Kastritsi': 'kastritsi',
+        'ROA Western Greece': 'wgreece',
+        'ROA Chalandritsa Meridian': 'chalandritsa',
+        'ROA Andalusia': 'andalusia',
+        'ROA Tuscany': 'tuscany',
+        'ROA Alentejo': 'alentejo',
+        'ROA Messinia': 'messinia',
+        'ROA Crete': 'crete',
+    };
+    const name = val.split(' \u2014 ')[0] || val.split(' — ')[0];
+    const matched = map[name];
+    if (matched) {
+        TERRITORY = matched;
+        FARM = `farm-${TERRITORY}`;
+        document.getElementById('territory-select').value = TERRITORY;
+        loadAllData();
+    }
+});
+
+// ===== CALENDAR MONTH NAVIGATION =====
+let currentCalMonth = 5; // 0-indexed, June = 5
+let currentCalYear = 2025;
+const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+document.querySelectorAll('.cal-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        if (btn.textContent.includes('\u2190') || btn.textContent.includes('May') || btn.textContent.includes('←')) {
+            currentCalMonth--;
+            if (currentCalMonth < 0) { currentCalMonth = 11; currentCalYear--; }
+        } else {
+            currentCalMonth++;
+            if (currentCalMonth > 11) { currentCalMonth = 0; currentCalYear++; }
+        }
+        const monthLabel = document.querySelector('.cal-month');
+        if (monthLabel) monthLabel.textContent = `${monthNames[currentCalMonth]} ${currentCalYear}`;
+
+        // Update buttons
+        const prevMonth = currentCalMonth === 0 ? 11 : currentCalMonth - 1;
+        const nextMonth = currentCalMonth === 11 ? 0 : currentCalMonth + 1;
+        const btns = document.querySelectorAll('.cal-btn');
+        if (btns[0]) btns[0].textContent = `\u2190 ${monthNames[prevMonth]}`;
+        if (btns[1]) btns[1].textContent = `${monthNames[nextMonth]} \u2192`;
+    });
+});
