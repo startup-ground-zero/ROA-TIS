@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ROA-TIS | Territorial Intelligence System</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
     <!-- ========== LOGIN SCREEN ========== -->
@@ -41,6 +43,11 @@
 
     <!-- ========== MAIN APP (hidden until login) ========== -->
     <div id="main-app" style="display:none;">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading territory data...</div>
+    </div>
     <!-- Top Navigation -->
     <nav class="top-nav">
         <div class="nav-brand">
@@ -50,10 +57,12 @@
         </div>
         <div class="nav-tabs">
             <button class="nav-tab active" data-view="dashboard">Authority Dashboard</button>
+            <button class="nav-tab" data-view="map">Territory Map</button>
             <button class="nav-tab" data-view="farmer">Farmer Portal</button>
             <button class="nav-tab" data-view="engines">Engine View</button>
             <button class="nav-tab" data-view="investor">Investor &amp; Commercial</button>
             <button class="nav-tab" data-view="architecture">Architecture &amp; Research</button>
+            <button class="nav-tab" data-view="api">API Docs</button>
         </div>
         <div class="nav-meta">
             <select id="territory-select" class="nav-select">
@@ -77,6 +86,7 @@
                 <option value="2020">2020</option>
             </select>
             <span class="status-dot online" id="api-status"></span>
+            <button class="btn-theme-toggle" id="btn-theme-toggle" title="Toggle theme">🌙</button>
             <div class="user-badge" id="user-badge">
                 <span id="user-display">—</span>
                 <span class="role-tag" id="user-role-tag">—</span>
@@ -240,6 +250,31 @@
             <!-- Export -->
             <div class="export-bar">
                 <button class="btn-export" id="btn-export-pdf">📄 Download Territory Report (PDF)</button>
+            </div>
+
+            <!-- Audit Log (Authority only) -->
+            <div class="panel audit-panel" id="audit-panel" style="margin-top:20px;">
+                <h3 class="section-title">Audit Log (Last 20 events)</h3>
+                <table class="audit-table">
+                    <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Detail</th></tr></thead>
+                    <tbody id="audit-log-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== TERRITORY MAP ========== -->
+    <div id="view-map" class="view">
+        <div class="map-layout">
+            <div class="map-header">
+                <h2>Territorial Intelligence Map — All ROA Territories</h2>
+                <p class="map-subtitle">Click a territory marker to view its RTI score and navigate to its dashboard.</p>
+            </div>
+            <div id="territory-map" class="territory-map"></div>
+            <div class="map-legend-bar">
+                <span class="map-legend-item"><span class="legend-dot legend-good"></span> RTI ≥ 70 (Healthy)</span>
+                <span class="map-legend-item"><span class="legend-dot legend-warning"></span> RTI 40–69 (Transitional)</span>
+                <span class="map-legend-item"><span class="legend-dot legend-alert"></span> RTI &lt; 40 (Critical)</span>
             </div>
         </div>
     </div>
@@ -1410,6 +1445,48 @@ All inputs from:  Data_Entry sheet, row ROA-ELY-2025
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- ========== API DOCUMENTATION ========== -->
+    <div id="view-api" class="view">
+        <div class="api-docs-layout">
+            <h2 class="api-docs-title">ROA-TIS API Documentation</h2>
+            <p class="api-docs-subtitle">REST API endpoints — Base URL: <code>http://localhost:5000/api</code></p>
+            <table class="api-table">
+                <thead>
+                    <tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Auth</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><span class="method-get">GET</span></td><td>/health</td><td>Health check — returns version &amp; status</td><td>No</td></tr>
+                    <tr><td><span class="method-get">GET</span></td><td>/territories</td><td>List all territories with coordinates</td><td>No</td></tr>
+                    <tr><td><span class="method-get">GET</span></td><td>/territories/scores/:year</td><td>All territories with RTI scores for a year</td><td>No</td></tr>
+                    <tr><td><span class="method-get">GET</span></td><td>/dashboard/:tid/:year</td><td>KPIs, command center, priorities + previous year trends</td><td>No</td></tr>
+                    <tr><td><span class="method-get">GET</span></td><td>/trajectory/:tid</td><td>60-year trajectory data (1965–2025)</td><td>No</td></tr>
+                    <tr><td><span class="method-get">GET</span></td><td>/comparison/:year</td><td>Cross-territory RTI comparison</td><td>No</td></tr>
+                    <tr><td><span class="method-get">GET</span></td><td>/engines/:tid/:year</td><td>Full engine breakdown (RTI, TARS, OPCI, BSEP, CAII, Budget)</td><td>No</td></tr>
+                    <tr><td><span class="method-get">GET</span></td><td>/farm/:fid</td><td>Farm detail + latest production data</td><td>No</td></tr>
+                    <tr><td><span class="method-get">GET</span></td><td>/farm/:fid/workings</td><td>Workings calendar (query: ?month=YYYY-MM)</td><td>No</td></tr>
+                    <tr><td><span class="method-get">GET</span></td><td>/farm/:fid/observations</td><td>Observation history for a farm</td><td>No</td></tr>
+                    <tr><td><span class="method-post">POST</span></td><td>/farm/:fid/observations</td><td>Submit new field observation</td><td>Yes</td></tr>
+                    <tr><td><span class="method-post">POST</span></td><td>/recalculate/:tid/:year</td><td>Trigger engine recalculation</td><td>Yes</td></tr>
+                    <tr><td><span class="method-post">POST</span></td><td>/auth/login</td><td>Login — returns user object + role</td><td>No</td></tr>
+                    <tr><td><span class="method-get">GET</span></td><td>/auth/users</td><td>List all user accounts (admin only)</td><td>Yes</td></tr>
+                    <tr><td><span class="method-get">GET</span></td><td>/audit-log</td><td>Audit log entries (admin only)</td><td>Yes</td></tr>
+                </tbody>
+            </table>
+            <div class="api-example panel">
+                <h3>Example Request</h3>
+                <pre><code>GET /api/dashboard/elysian/2025
+
+Response:
+{
+  "kpis": { "rti": 85.2, "tars": 6.4, "bsep": 81.8, "budget_gap": 199.9 },
+  "prev_kpis": { "rti": 82.0, "tars": 7.0, "bsep": 78.0, "budget_gap": 185.0 },
+  "command_center": [...],
+  "priorities": [...]
+}</code></pre>
+            </div>
         </div>
     </div>
 

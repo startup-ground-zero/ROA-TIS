@@ -5,9 +5,9 @@ const API_BASE = 'http://127.0.0.1:5000/api';
 let currentUser = JSON.parse(localStorage.getItem('roatis_user') || 'null');
 
 const ROLE_TABS = {
-    authority: ['dashboard', 'farmer', 'engines', 'investor', 'architecture'],
-    farmer: ['farmer', 'dashboard', 'engines'],
-    investor: ['investor', 'dashboard', 'architecture'],
+    authority: ['dashboard', 'map', 'farmer', 'engines', 'investor', 'architecture', 'api'],
+    farmer: ['farmer', 'dashboard', 'map', 'engines'],
+    investor: ['investor', 'dashboard', 'map', 'architecture'],
 };
 
 function showLogin() {
@@ -137,6 +137,8 @@ async function fetchJSON(endpoint) {
 // ===== MAIN DATA LOADER =====
 async function loadAllData() {
     const statusDot = document.getElementById('api-status');
+    const loader = document.getElementById('loading-overlay');
+    if (loader) loader.classList.remove('hidden');
     try {
         // Core territory data — dashboard may 404 for years without engine scores
         const [dashboard, trajectory, comparison, engines] = await Promise.all([
@@ -157,11 +159,11 @@ async function loadAllData() {
         } catch { /* farm not seeded for this territory */ }
 
         if (dashboard) {
-            updateKPIs(dashboard.kpis, engines);
+            updateKPIs(dashboard.kpis, engines, dashboard.prev_kpis);
             updateCommandCenter(dashboard.command_center);
             updatePriorities(dashboard.priorities);
         } else {
-            updateKPIs({ rti: '—', tars: '—', bsep: '—', budget_gap: '—' }, null);
+            updateKPIs({ rti: '—', tars: '—', bsep: '—', budget_gap: '—' }, null, null);
             updateCommandCenter([]);
             updatePriorities([]);
         }
@@ -182,6 +184,8 @@ async function loadAllData() {
         renderRevenueChart(null);
         renderCapitalChart();
         renderRoadmapChart();
+    } finally {
+        if (loader) loader.classList.add('hidden');
     }
 }
 
@@ -203,8 +207,20 @@ document.getElementById('year-select')?.addEventListener('change', (e) => {
 });
 
 // ===== KPI UPDATES WITH CONFIDENCE =====
-function updateKPIs(kpis, engines) {
+function updateKPIs(kpis, engines, prevKpis) {
     const noData = (v) => v === '—' || v === null || v === undefined;
+
+    function trendArrow(curr, prev, invertBetter) {
+        if (curr == null || prev == null) return '';
+        const diff = curr - prev;
+        if (Math.abs(diff) < 0.1) return '<span class="trend-arrow trend-flat">→</span>';
+        const up = diff > 0;
+        // For most KPIs up is good; for TARS and budget_gap, down is good
+        const isGood = invertBetter ? !up : up;
+        const cls = isGood ? 'trend-up' : 'trend-down';
+        const arrow = up ? '↑' : '↓';
+        return `<span class="trend-arrow ${cls}">${arrow} ${Math.abs(diff).toFixed(1)}</span>`;
+    }
 
     // RTI
     const rtiVal = document.getElementById('kpi-rti-value');
@@ -214,7 +230,7 @@ function updateKPIs(kpis, engines) {
         rtiVal.textContent = noData(kpis.rti) ? '—' : kpis.rti;
         rtiVal.className = 'kpi-value ' + (noData(kpis.rti) ? '' : kpis.rti >= 70 ? 'good' : kpis.rti >= 40 ? 'warning' : 'alert');
     }
-    if (rtiTrend) rtiTrend.textContent = engines?.rti?.confidence ? `Confidence: ${engines.rti.confidence}` : '';
+    if (rtiTrend) rtiTrend.innerHTML = trendArrow(kpis.rti, prevKpis?.rti, false) + (engines?.rti?.confidence ? ` Confidence: ${engines.rti.confidence}` : '');
     if (rtiConf) rtiConf.innerHTML = engines?.rti?.confidence ? renderConfidenceBadge(engines.rti.confidence) : '';
 
     // TARS
@@ -225,7 +241,7 @@ function updateKPIs(kpis, engines) {
         tarsVal.textContent = noData(kpis.tars) ? '—' : kpis.tars;
         tarsVal.className = 'kpi-value ' + (noData(kpis.tars) ? '' : kpis.tars <= 5 ? 'good' : kpis.tars <= 10 ? 'warning' : 'alert');
     }
-    if (tarsTrend) tarsTrend.textContent = engines?.tars?.status || '';
+    if (tarsTrend) tarsTrend.innerHTML = trendArrow(kpis.tars, prevKpis?.tars, true) + ' ' + (engines?.tars?.status || '');
     if (tarsConf) tarsConf.innerHTML = engines?.tars?.status ? `<span class="conf-badge conf-${engines.tars.status.toLowerCase()}">${engines.tars.status}</span>` : '';
 
     // BSEP
@@ -236,7 +252,7 @@ function updateKPIs(kpis, engines) {
         bsepVal.textContent = noData(kpis.bsep) ? '—' : kpis.bsep;
         bsepVal.className = 'kpi-value ' + (noData(kpis.bsep) ? '' : kpis.bsep >= 60 ? 'alert' : kpis.bsep >= 30 ? 'warning' : 'good');
     }
-    if (bsepTrend) bsepTrend.textContent = engines?.bsep?.escalation || '';
+    if (bsepTrend) bsepTrend.innerHTML = trendArrow(kpis.bsep, prevKpis?.bsep, true) + ' ' + (engines?.bsep?.escalation || '');
     if (bsepConf) bsepConf.innerHTML = engines?.bsep?.escalation ? `<span class="conf-badge conf-${engines.bsep.escalation.toLowerCase()}">${engines.bsep.escalation}</span>` : '';
 
     // Budget
@@ -247,7 +263,7 @@ function updateKPIs(kpis, engines) {
         budgetVal.textContent = noData(kpis.budget_gap) ? '—' : `€${kpis.budget_gap}M`;
         budgetVal.className = 'kpi-value ' + (noData(kpis.budget_gap) ? '' : kpis.budget_gap > 150 ? 'alert' : kpis.budget_gap > 50 ? 'warning' : 'good');
     }
-    if (budgetTrend) budgetTrend.textContent = engines?.budget?.scenario || '';
+    if (budgetTrend) budgetTrend.innerHTML = trendArrow(kpis.budget_gap, prevKpis?.budget_gap, true) + ' ' + (engines?.budget?.scenario || '');
     if (budgetConf) budgetConf.innerHTML = engines?.budget?.urgency ? `<span class="conf-badge conf-urgency">Urgency: ${engines.budget.urgency}/5</span>` : '';
 }
 
@@ -605,7 +621,7 @@ document.getElementById('btn-submit-obs')?.addEventListener('click', async (e) =
                 fetchJSON(`/dashboard/${TERRITORY}/${YEAR}`),
                 fetchJSON(`/engines/${TERRITORY}/${YEAR}`),
             ]);
-            updateKPIs(dashboard.kpis, engines);
+            updateKPIs(dashboard.kpis, engines, dashboard.prev_kpis);
             updateEngineCards(engines);
             loadObservationHistory();
 
@@ -678,7 +694,7 @@ document.querySelector('.btn-compute')?.addEventListener('click', async (e) => {
             fetchJSON(`/engines/${TERRITORY}/${YEAR}`),
         ]);
 
-        updateKPIs(dashboard.kpis, engines);
+        updateKPIs(dashboard.kpis, engines, dashboard.prev_kpis);
         updateEngineCards(engines);
         btn.textContent = '\u2713 All engines recalculated';
         btn.style.opacity = '1';
@@ -900,3 +916,98 @@ ${trajectory && trajectory.labels?.length > 0 ? `
     btn.textContent = '📄 Download Territory Report (PDF)';
     btn.disabled = false;
 });
+
+/* ===== TERRITORY MAP (Leaflet) ===== */
+let mapInstance = null;
+
+function initMap() {
+    if (mapInstance) { mapInstance.remove(); mapInstance = null; }
+    const container = document.getElementById('territory-map');
+    if (!container) return;
+
+    mapInstance = L.map('territory-map').setView([38.5, 15.0], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 18
+    }).addTo(mapInstance);
+
+    const year = document.getElementById('year-select')?.value || 2025;
+    fetchJSON(`/api/territories/scores/${year}`).then(data => {
+        if (!data || !Array.isArray(data)) return;
+        const bounds = [];
+        data.forEach(t => {
+            if (t.latitude == null || t.longitude == null) return;
+            const rti = t.rti != null ? t.rti.toFixed(1) : '—';
+            const color = t.rti >= 70 ? '#2ecc71' : t.rti >= 40 ? '#f7b731' : '#ff6b6b';
+            const marker = L.circleMarker([t.latitude, t.longitude], {
+                radius: 12, fillColor: color, color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.85
+            }).addTo(mapInstance);
+
+            marker.bindPopup(`
+                <div class="map-popup-title">${t.name}</div>
+                <div class="map-popup-score" style="color:${color}">RTI: ${rti}</div>
+                <span class="map-popup-btn" onclick="navigateToTerritory('${t.id}')">View Dashboard →</span>
+            `);
+            bounds.push([t.latitude, t.longitude]);
+        });
+        if (bounds.length) mapInstance.fitBounds(bounds, { padding: [40, 40] });
+    });
+}
+
+window.navigateToTerritory = function(tid) {
+    const sel = document.getElementById('territory-select');
+    if (sel) { sel.value = tid; sel.dispatchEvent(new Event('change')); }
+    document.querySelector('[data-view="dashboard"]')?.click();
+};
+
+// Reinit map when switching to map tab
+document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        if (tab.dataset.view === 'map') {
+            setTimeout(() => initMap(), 100);
+        }
+    });
+});
+
+/* ===== DARK / LIGHT THEME TOGGLE ===== */
+(function initTheme() {
+    const saved = localStorage.getItem('roatis_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    const btn = document.getElementById('btn-theme-toggle');
+    if (btn) btn.textContent = saved === 'light' ? '☀️' : '🌙';
+})();
+document.getElementById('btn-theme-toggle')?.addEventListener('click', () => {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('roatis_theme', next);
+    const btn = document.getElementById('btn-theme-toggle');
+    if (btn) btn.textContent = next === 'light' ? '☀️' : '🌙';
+});
+
+/* ===== AUDIT LOG ===== */
+async function loadAuditLog() {
+    const body = document.getElementById('audit-log-body');
+    if (!body) return;
+    try {
+        const logs = await fetchJSON('/audit-log');
+        body.innerHTML = logs.slice(0, 20).map(l => `
+            <tr>
+                <td>${l.timestamp || '—'}</td>
+                <td>${l.username || '—'}</td>
+                <td>${l.action}</td>
+                <td>${l.detail || ''}</td>
+            </tr>
+        `).join('');
+        if (!logs.length) body.innerHTML = '<tr><td colspan="4" style="color:#8899a6">No audit events yet</td></tr>';
+    } catch { body.innerHTML = '<tr><td colspan="4" style="color:#8899a6">Audit log unavailable</td></tr>'; }
+}
+// Load audit log after login if authority
+function maybeLoadAudit() {
+    if (currentUser?.role === 'authority') loadAuditLog();
+    else { const p = document.getElementById('audit-panel'); if (p) p.style.display = 'none'; }
+}
+// call on data load
+const _origLoadAllData = loadAllData;
+loadAllData = async function() { await _origLoadAllData(); maybeLoadAudit(); };

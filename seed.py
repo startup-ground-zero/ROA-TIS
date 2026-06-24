@@ -209,6 +209,67 @@ def seed():
          55.0, None, "Alert", 6, 20, "MEDIUM",
          47.0, 43.0, 44.0, 46.0, 39.0, 4,
          250.0, 65, 185.0, 0.60, "Stewardship Push", 4),
+        # ── Historical data 2020-2024 (showing progression) ──
+        # Elysian 2020-2024
+        ("elysian", 2024, 82.0, 85, 89, 79, 87, 3.5, 83, "A", 7.0, 1, 1, 1, 40, 24, 1, "MONITOR", 75.0, 65, 89, 290, 3.9, 28, 78.0, "CS / RTC / II", "Monitor", 12, 85, "MEDIUM", 58.0, 46.0, 47.0, 48.0, 40.0, 6, 240.0, 55, 185.0, 0.62, "Ecological Recovery", 5),
+        ("elysian", 2023, 78.5, 80, 85, 75, 82, 3.2, 79, "B", 7.5, 1, 2, 1, 42, 26, 2, "MONITOR", 72.0, 62, 86, 282, 3.6, 25, 72.0, None, "Monitor", 10, 70, "MEDIUM", 54.0, 43.0, 44.0, 45.0, 37.0, 5, 230.0, 50, 180.0, 0.65, "Stewardship Push", 4),
+        ("elysian", 2022, 74.0, 76, 80, 70, 78, 2.9, 74, "B", 8.0, 2, 2, 1, 45, 28, 3, "ALERT", 68.0, 58, 82, 275, 3.3, 22, 65.0, None, "Alert", 8, 55, "MEDIUM", 50.0, 40.0, 41.0, 42.0, 35.0, 5, 220.0, 45, 175.0, 0.68, "Stewardship Push", 4),
+        ("elysian", 2021, 70.0, 72, 76, 66, 74, 2.7, 70, "B", 8.5, 2, 2, 2, 48, 30, 4, "ALERT", 64.0, 55, 78, 268, 3.0, 18, 58.0, None, "Alert", 6, 40, "MEDIUM", 46.0, 37.0, 38.0, 39.0, 32.0, 4, 210.0, 40, 170.0, 0.70, "Stewardship Push", 4),
+        ("elysian", 2020, 66.0, 68, 72, 62, 70, 2.5, 66, "C", 9.0, 2, 3, 2, 50, 32, 5, "ALERT", 60.0, 52, 74, 260, 2.8, 15, 52.0, None, "Alert", 5, 30, "HIGH", 42.0, 34.0, 35.0, 36.0, 30.0, 4, 200.0, 35, 165.0, 0.72, "Baseline", 3),
+        # Sella 2020-2024
+        ("sella", 2024, 50.0, 53, 48, 46, 43, 2.0, 50, "B", 6.8, 1, 1, 1, 42, 25, 1, "MONITOR", 54.0, 50, 73, 248, 3.0, 11, 38.0, None, "Monitor", 0, 0, "MEDIUM", 43.0, 38.0, 40.0, 42.0, 36.0, 3, 175.0, 38, 137.0, 0.56, "Baseline", 4),
+        ("sella", 2023, 47.5, 50, 45, 43, 40, 1.9, 47, "C", 7.2, 1, 2, 1, 44, 27, 2, "MONITOR", 51.0, 47, 70, 244, 2.8, 9, 35.0, None, "Monitor", 0, 0, "MEDIUM", 40.0, 36.0, 37.0, 39.0, 34.0, 3, 168.0, 35, 133.0, 0.58, "Baseline", 3),
+        ("sella", 2022, 45.0, 47, 42, 40, 37, 1.8, 44, "C", 7.5, 2, 2, 2, 46, 29, 3, "ALERT", 48.0, 44, 67, 240, 2.6, 7, 32.0, None, "Monitor", 0, 0, "MEDIUM", 37.0, 33.0, 34.0, 36.0, 31.0, 2, 160.0, 32, 128.0, 0.60, "Baseline", 3),
+        ("sella", 2021, 42.0, 44, 39, 37, 34, 1.7, 41, "C", 8.0, 2, 2, 2, 48, 31, 4, "ALERT", 45.0, 41, 64, 236, 2.4, 5, 29.0, None, "Alert", 3, 10, "MEDIUM", 34.0, 30.0, 31.0, 33.0, 28.0, 2, 152.0, 30, 122.0, 0.62, "Baseline", 3),
+        ("sella", 2020, 39.0, 41, 36, 34, 31, 1.6, 38, "C", 8.5, 3, 3, 2, 50, 33, 5, "ALERT", 42.0, 38, 61, 232, 2.2, 3, 26.0, None, "Alert", 2, 5, "HIGH", 31.0, 27.0, 28.0, 30.0, 25.0, 2, 145.0, 28, 117.0, 0.64, "Baseline", 3),
+        # Kastritsi 2020-2024
+        ("kastritsi", 2024, 50.0, 52, 49, 45, 42, 1.9, 48, "B", 6.8, 1, 1, 1, 44, 26, 1, "MONITOR", 54.0, 48, 71, 243, 2.9, 9, 36.0, None, "Monitor", 0, 0, "MEDIUM", 42.0, 37.0, 39.0, 41.0, 35.0, 3, 170.0, 36, 134.0, 0.55, "Baseline", 4),
+        ("kastritsi", 2023, 47.0, 49, 46, 42, 39, 1.8, 45, "C", 7.2, 1, 2, 1, 46, 28, 2, "MONITOR", 50.0, 45, 68, 239, 2.7, 7, 33.0, None, "Monitor", 0, 0, "MEDIUM", 39.0, 34.0, 36.0, 38.0, 32.0, 2, 163.0, 34, 129.0, 0.57, "Baseline", 3),
+        ("kastritsi", 2022, 44.0, 46, 43, 39, 36, 1.7, 42, "C", 7.6, 2, 2, 2, 48, 30, 3, "ALERT", 47.0, 42, 65, 235, 2.5, 5, 30.0, None, "Monitor", 0, 0, "MEDIUM", 36.0, 31.0, 33.0, 35.0, 29.0, 2, 155.0, 31, 124.0, 0.59, "Baseline", 3),
+        ("kastritsi", 2021, 41.0, 43, 40, 36, 33, 1.6, 39, "C", 8.0, 2, 2, 2, 50, 32, 4, "ALERT", 44.0, 39, 62, 231, 2.3, 3, 27.0, None, "Alert", 2, 5, "MEDIUM", 33.0, 28.0, 30.0, 32.0, 26.0, 2, 148.0, 29, 119.0, 0.61, "Baseline", 3),
+        ("kastritsi", 2020, 38.0, 40, 37, 33, 30, 1.5, 36, "C", 8.5, 3, 3, 2, 52, 34, 5, "ALERT", 41.0, 36, 59, 227, 2.1, 2, 24.0, None, "Alert", 2, 3, "HIGH", 30.0, 25.0, 27.0, 29.0, 23.0, 2, 140.0, 26, 114.0, 0.63, "Baseline", 3),
+        # Western Greece 2020-2024
+        ("wgreece", 2024, 66.0, 62, 59, 57, 55, 2.6, 65, "B", 10.5, 3, 2, 2, 47, 29, 0, "ALERT", 59.0, 55, 77, 265, 3.3, 16, 52.0, None, "Alert", 8, 45, "MEDIUM", 50.0, 46.0, 47.0, 48.0, 40.0, 5, 215.0, 52, 163.0, 0.59, "Stewardship Push", 4),
+        ("wgreece", 2023, 62.0, 58, 55, 53, 51, 2.4, 61, "B", 11.0, 4, 3, 2, 49, 31, 1, "ALERT", 55.0, 51, 74, 260, 3.1, 14, 48.0, None, "Alert", 7, 35, "MEDIUM", 47.0, 43.0, 44.0, 45.0, 37.0, 4, 208.0, 48, 160.0, 0.61, "Stewardship Push", 4),
+        ("wgreece", 2022, 58.0, 54, 51, 49, 47, 2.2, 57, "C", 11.5, 4, 3, 3, 51, 33, 2, "ALERT", 51.0, 47, 71, 255, 2.9, 12, 44.0, None, "Alert", 6, 25, "HIGH", 44.0, 40.0, 41.0, 42.0, 34.0, 4, 200.0, 44, 156.0, 0.63, "Baseline", 4),
+        ("wgreece", 2021, 54.0, 50, 47, 45, 43, 2.0, 53, "C", 12.0, 5, 4, 3, 53, 35, 3, "ALERT", 47.0, 43, 68, 250, 2.7, 10, 40.0, None, "Alert", 5, 15, "HIGH", 41.0, 37.0, 38.0, 39.0, 31.0, 3, 192.0, 40, 152.0, 0.65, "Baseline", 3),
+        ("wgreece", 2020, 50.0, 46, 43, 41, 39, 1.8, 49, "C", 12.5, 5, 4, 3, 55, 37, 4, "ALERT", 43.0, 39, 65, 245, 2.5, 8, 36.0, None, "Alert", 4, 10, "HIGH", 38.0, 34.0, 35.0, 36.0, 28.0, 3, 185.0, 36, 149.0, 0.67, "Baseline", 3),
+        # Chalandritsa 2020-2024
+        ("chalandritsa", 2024, 57.5, 60, 56, 53, 50, 2.3, 58, "B", 5.5, 1, 1, 1, 37, 21, 1, "MONITOR", 65.0, 57, 80, 276, 3.6, 14, 43.0, None, "Monitor", 0, 0, "LOW", 46.0, 42.0, 44.0, 45.0, 38.0, 4, 185.0, 43, 142.0, 0.57, "Baseline", 3),
+        ("chalandritsa", 2023, 55.0, 57, 53, 50, 47, 2.1, 55, "B", 6.0, 1, 1, 1, 39, 23, 2, "MONITOR", 62.0, 54, 77, 272, 3.4, 12, 40.0, None, "Monitor", 0, 0, "LOW", 43.0, 39.0, 41.0, 42.0, 35.0, 3, 180.0, 40, 140.0, 0.59, "Baseline", 3),
+        ("chalandritsa", 2022, 52.0, 54, 50, 47, 44, 1.9, 52, "C", 6.5, 2, 1, 1, 41, 25, 3, "MONITOR", 58.0, 51, 74, 268, 3.2, 10, 37.0, None, "Monitor", 0, 0, "LOW", 40.0, 36.0, 38.0, 39.0, 32.0, 3, 174.0, 37, 137.0, 0.61, "Baseline", 3),
+        ("chalandritsa", 2021, 49.0, 51, 47, 44, 41, 1.8, 49, "C", 7.0, 2, 2, 2, 43, 27, 4, "ALERT", 54.0, 48, 71, 264, 3.0, 8, 34.0, None, "Monitor", 0, 0, "LOW", 37.0, 33.0, 35.0, 36.0, 29.0, 3, 167.0, 34, 133.0, 0.63, "Baseline", 3),
+        ("chalandritsa", 2020, 46.0, 48, 44, 41, 38, 1.7, 46, "C", 7.5, 2, 2, 2, 45, 29, 5, "ALERT", 50.0, 45, 68, 260, 2.8, 6, 31.0, None, "Alert", 2, 5, "MEDIUM", 34.0, 30.0, 32.0, 33.0, 26.0, 2, 160.0, 31, 129.0, 0.65, "Baseline", 3),
+        # Messinia 2020-2024
+        ("messinia", 2024, 57.5, 56, 54, 51, 48, 2.3, 56, "C", 5.5, 1, 1, 2, 42, 27, 0, "MONITOR", 73.0, 62, 83, 286, 3.8, 18, 40.0, None, "Monitor", 0, 0, "LOW", 48.0, 44.0, 45.0, 46.0, 39.0, 4, 195.0, 48, 147.0, 0.58, "Baseline", 3),
+        ("messinia", 2023, 55.0, 53, 51, 48, 45, 2.1, 53, "C", 6.0, 2, 1, 2, 44, 29, 1, "MONITOR", 70.0, 59, 80, 282, 3.6, 16, 37.0, None, "Monitor", 0, 0, "LOW", 45.0, 41.0, 42.0, 43.0, 36.0, 3, 188.0, 45, 143.0, 0.60, "Baseline", 3),
+        ("messinia", 2022, 52.0, 50, 48, 45, 42, 1.9, 50, "C", 6.5, 2, 2, 2, 46, 31, 2, "ALERT", 66.0, 56, 77, 278, 3.4, 14, 34.0, None, "Monitor", 0, 0, "LOW", 42.0, 38.0, 39.0, 40.0, 33.0, 3, 180.0, 42, 138.0, 0.62, "Baseline", 3),
+        ("messinia", 2021, 49.0, 47, 45, 42, 39, 1.7, 47, "C", 7.0, 2, 2, 3, 48, 33, 3, "ALERT", 62.0, 53, 74, 274, 3.2, 12, 31.0, None, "Alert", 2, 5, "MEDIUM", 39.0, 35.0, 36.0, 37.0, 30.0, 3, 172.0, 39, 133.0, 0.64, "Baseline", 3),
+        ("messinia", 2020, 46.0, 44, 42, 39, 36, 1.5, 44, "C", 7.5, 3, 2, 3, 50, 35, 4, "ALERT", 58.0, 50, 71, 270, 3.0, 10, 28.0, None, "Alert", 2, 3, "HIGH", 36.0, 32.0, 33.0, 34.0, 27.0, 2, 165.0, 36, 129.0, 0.66, "Baseline", 3),
+        # Crete 2020-2024
+        ("crete", 2024, 57.5, 55, 52, 49, 46, 2.1, 54, "C", 9.5, 2, 1, 2, 50, 31, 1, "ALERT", 67.0, 60, 81, 272, 3.5, 15, 47.0, None, "Alert", 4, 25, "MEDIUM", 47.0, 43.0, 44.0, 45.0, 38.0, 4, 205.0, 50, 155.0, 0.58, "Ecological Recovery", 4),
+        ("crete", 2023, 54.0, 52, 49, 46, 43, 1.9, 51, "C", 10.0, 3, 2, 2, 52, 33, 2, "ALERT", 63.0, 57, 78, 268, 3.3, 13, 43.0, None, "Alert", 3, 18, "MEDIUM", 44.0, 40.0, 41.0, 42.0, 35.0, 3, 198.0, 47, 151.0, 0.60, "Stewardship Push", 4),
+        ("crete", 2022, 50.0, 49, 46, 43, 40, 1.7, 48, "C", 10.5, 3, 2, 3, 54, 35, 3, "ALERT", 59.0, 54, 75, 264, 3.1, 11, 39.0, None, "Alert", 3, 12, "MEDIUM", 41.0, 37.0, 38.0, 39.0, 32.0, 3, 190.0, 44, 146.0, 0.62, "Baseline", 3),
+        ("crete", 2021, 47.0, 46, 43, 40, 37, 1.5, 45, "C", 11.0, 4, 3, 3, 56, 37, 4, "ALERT", 55.0, 51, 72, 260, 2.9, 9, 35.0, None, "Alert", 2, 8, "HIGH", 38.0, 34.0, 35.0, 36.0, 29.0, 3, 183.0, 41, 142.0, 0.64, "Baseline", 3),
+        ("crete", 2020, 44.0, 43, 40, 37, 34, 1.3, 42, "C", 11.5, 4, 3, 3, 58, 39, 5, "ALERT", 51.0, 48, 69, 256, 2.7, 7, 31.0, None, "Alert", 2, 5, "HIGH", 35.0, 31.0, 32.0, 33.0, 26.0, 2, 175.0, 38, 137.0, 0.66, "Baseline", 3),
+        # Andalusia 2020-2024
+        ("andalusia", 2024, 52.0, 48, 46, 44, 40, 1.9, 50, "C", 12.5, 3, 2, 3, 57, 36, 1, "ALERT", 82.0, 75, 86, 305, 5.0, 7, 57.0, None, "Alert", 7, 22, "HIGH", 44.0, 40.0, 42.0, 43.0, 36.0, 5, 290.0, 75, 215.0, 0.63, "Stewardship Push", 5),
+        ("andalusia", 2023, 49.0, 45, 43, 41, 37, 1.7, 47, "C", 13.0, 4, 3, 3, 59, 38, 2, "ALERT", 78.0, 72, 83, 300, 4.8, 6, 53.0, None, "Alert", 6, 18, "HIGH", 41.0, 37.0, 39.0, 40.0, 33.0, 4, 280.0, 70, 210.0, 0.65, "Baseline", 5),
+        ("andalusia", 2022, 46.0, 42, 40, 38, 34, 1.5, 44, "C", 13.5, 4, 3, 4, 61, 40, 3, "ALERT", 74.0, 69, 80, 295, 4.6, 5, 49.0, None, "Alert", 5, 14, "HIGH", 38.0, 34.0, 36.0, 37.0, 30.0, 4, 270.0, 65, 205.0, 0.67, "Baseline", 4),
+        ("andalusia", 2021, 43.0, 39, 37, 35, 31, 1.3, 41, "C", 14.0, 5, 4, 4, 63, 42, 4, "ALERT", 70.0, 66, 77, 290, 4.4, 4, 45.0, None, "Alert", 4, 10, "HIGH", 35.0, 31.0, 33.0, 34.0, 27.0, 3, 260.0, 60, 200.0, 0.69, "Baseline", 4),
+        ("andalusia", 2020, 40.0, 36, 34, 32, 28, 1.1, 38, "C", 14.5, 5, 4, 4, 65, 44, 5, "ALERT", 66.0, 63, 74, 285, 4.2, 3, 41.0, None, "Alert", 3, 6, "HIGH", 32.0, 28.0, 30.0, 31.0, 24.0, 3, 250.0, 55, 195.0, 0.71, "Baseline", 4),
+        # Tuscany 2020-2024
+        ("tuscany", 2024, 64.0, 62, 60, 58, 56, 2.7, 63, "B", 8.5, 2, 1, 1, 34, 21, 1, "MONITOR", 76.0, 68, 84, 296, 4.3, 20, 33.0, None, "Monitor", 0, 0, "LOW", 53.0, 48.0, 50.0, 51.0, 42.0, 4, 175.0, 58, 117.0, 0.51, "Baseline", 3),
+        ("tuscany", 2023, 61.0, 59, 57, 55, 53, 2.5, 60, "B", 9.0, 2, 2, 1, 36, 23, 2, "MONITOR", 72.0, 65, 81, 292, 4.1, 18, 30.0, None, "Monitor", 0, 0, "LOW", 50.0, 45.0, 47.0, 48.0, 39.0, 3, 168.0, 55, 113.0, 0.53, "Baseline", 3),
+        ("tuscany", 2022, 58.0, 56, 54, 52, 50, 2.3, 57, "C", 9.5, 3, 2, 2, 38, 25, 3, "MONITOR", 68.0, 62, 78, 288, 3.9, 16, 27.0, None, "Monitor", 0, 0, "LOW", 47.0, 42.0, 44.0, 45.0, 36.0, 3, 160.0, 52, 108.0, 0.55, "Baseline", 3),
+        ("tuscany", 2021, 55.0, 53, 51, 49, 47, 2.1, 54, "C", 10.0, 3, 2, 2, 40, 27, 4, "ALERT", 64.0, 59, 75, 284, 3.7, 14, 24.0, None, "Monitor", 0, 0, "LOW", 44.0, 39.0, 41.0, 42.0, 33.0, 3, 153.0, 49, 104.0, 0.57, "Baseline", 3),
+        ("tuscany", 2020, 52.0, 50, 48, 46, 44, 1.9, 51, "C", 10.5, 3, 3, 2, 42, 29, 5, "ALERT", 60.0, 56, 72, 280, 3.5, 12, 21.0, None, "Alert", 2, 5, "MEDIUM", 41.0, 36.0, 38.0, 39.0, 30.0, 2, 145.0, 46, 99.0, 0.59, "Baseline", 3),
+        # Alentejo 2020-2024
+        ("alentejo", 2024, 54.0, 50, 48, 46, 42, 2.0, 52, "C", 11.5, 2, 2, 2, 52, 33, 0, "ALERT", 85.0, 77, 88, 316, 5.3, 5, 52.0, None, "Alert", 5, 17, "MEDIUM", 45.0, 41.0, 42.0, 44.0, 37.0, 4, 245.0, 62, 183.0, 0.61, "Stewardship Push", 4),
+        ("alentejo", 2023, 51.0, 47, 45, 43, 39, 1.8, 49, "C", 12.0, 3, 2, 3, 54, 35, 1, "ALERT", 81.0, 74, 85, 312, 5.1, 4, 48.0, None, "Alert", 4, 13, "MEDIUM", 42.0, 38.0, 39.0, 41.0, 34.0, 3, 238.0, 59, 179.0, 0.63, "Baseline", 4),
+        ("alentejo", 2022, 48.0, 44, 42, 40, 36, 1.6, 46, "C", 12.5, 3, 3, 3, 56, 37, 2, "ALERT", 77.0, 71, 82, 308, 4.9, 3, 44.0, None, "Alert", 3, 9, "MEDIUM", 39.0, 35.0, 36.0, 38.0, 31.0, 3, 230.0, 56, 174.0, 0.65, "Baseline", 4),
+        ("alentejo", 2021, 45.0, 41, 39, 37, 33, 1.4, 43, "C", 13.0, 4, 3, 3, 58, 39, 3, "ALERT", 73.0, 68, 79, 304, 4.7, 2, 40.0, None, "Alert", 3, 6, "HIGH", 36.0, 32.0, 33.0, 35.0, 28.0, 3, 222.0, 53, 169.0, 0.67, "Baseline", 3),
+        ("alentejo", 2020, 42.0, 38, 36, 34, 30, 1.2, 40, "C", 13.5, 4, 4, 4, 60, 41, 4, "ALERT", 69.0, 65, 76, 300, 4.5, 1, 36.0, None, "Alert", 2, 3, "HIGH", 33.0, 29.0, 30.0, 32.0, 25.0, 2, 215.0, 50, 165.0, 0.69, "Baseline", 3),
     ]
     for es in engine_scores:
         c.execute("""
@@ -311,6 +372,103 @@ def seed():
     c.executemany(
         "INSERT OR REPLACE INTO workings (farm_id, date, task_type, task_description) VALUES (?,?,?,?)",
         june_tasks,
+    )
+
+    # ── Workings Calendar (Other farms, June 2025) ──
+    other_farm_tasks = [
+        # Sella Grove
+        ("farm-sella", "2025-06-02", "irrigation", "Drip system check"),
+        ("farm-sella", "2025-06-05", "pruning", "Light pruning"),
+        ("farm-sella", "2025-06-09", "monitoring", "Pest check"),
+        ("farm-sella", "2025-06-12", "soil", "Fertilizer application"),
+        ("farm-sella", "2025-06-16", "irrigation", "Irrigation cycle"),
+        ("farm-sella", "2025-06-19", "monitoring", "Canopy health check"),
+        ("farm-sella", "2025-06-23", "irrigation", "Irrigation cycle"),
+        ("farm-sella", "2025-06-26", "fire", "Firebreak clearing"),
+        ("farm-sella", "2025-06-30", "monitoring", "Monthly review"),
+        # Kastritsi Estate
+        ("farm-kastritsi", "2025-06-01", "monitoring", "Drone survey"),
+        ("farm-kastritsi", "2025-06-04", "soil", "Soil analysis"),
+        ("farm-kastritsi", "2025-06-08", "irrigation", "System maintenance"),
+        ("farm-kastritsi", "2025-06-11", "pruning", "Crown thinning"),
+        ("farm-kastritsi", "2025-06-15", "monitoring", "Pest trapping"),
+        ("farm-kastritsi", "2025-06-18", "soil", "Mulching"),
+        ("farm-kastritsi", "2025-06-22", "irrigation", "Irrigation cycle"),
+        ("farm-kastritsi", "2025-06-25", "fire", "Fire risk assessment"),
+        ("farm-kastritsi", "2025-06-29", "monitoring", "Growth measurement"),
+        # Western Greece Coop
+        ("farm-wgreece", "2025-06-02", "monitoring", "Regional pest survey"),
+        ("farm-wgreece", "2025-06-05", "irrigation", "Canal maintenance"),
+        ("farm-wgreece", "2025-06-09", "soil", "Soil sampling"),
+        ("farm-wgreece", "2025-06-12", "monitoring", "Weather station check"),
+        ("farm-wgreece", "2025-06-16", "irrigation", "Irrigation scheduling"),
+        ("farm-wgreece", "2025-06-19", "pruning", "Cooperative pruning day"),
+        ("farm-wgreece", "2025-06-23", "fire", "Fire drill"),
+        ("farm-wgreece", "2025-06-26", "monitoring", "Yield estimation"),
+        ("farm-wgreece", "2025-06-30", "monitoring", "Coop monthly meeting"),
+        # Chalandritsa Farm
+        ("farm-chalandritsa", "2025-06-03", "irrigation", "Reservoir check"),
+        ("farm-chalandritsa", "2025-06-06", "soil", "Compost turning"),
+        ("farm-chalandritsa", "2025-06-10", "monitoring", "Olive moth traps"),
+        ("farm-chalandritsa", "2025-06-13", "pruning", "Suckers removal"),
+        ("farm-chalandritsa", "2025-06-17", "irrigation", "Drip check"),
+        ("farm-chalandritsa", "2025-06-20", "fire", "Grass clearing"),
+        ("farm-chalandritsa", "2025-06-24", "monitoring", "Fruit development"),
+        ("farm-chalandritsa", "2025-06-27", "soil", "Green manure"),
+        # Messinia Groves
+        ("farm-messinia", "2025-06-01", "irrigation", "Pump station check"),
+        ("farm-messinia", "2025-06-04", "monitoring", "Kalamata variety check"),
+        ("farm-messinia", "2025-06-08", "soil", "Organic matter test"),
+        ("farm-messinia", "2025-06-11", "pruning", "Thinning cuts"),
+        ("farm-messinia", "2025-06-15", "irrigation", "Irrigation cycle"),
+        ("farm-messinia", "2025-06-18", "fire", "Perimeter clearing"),
+        ("farm-messinia", "2025-06-22", "monitoring", "Pest assessment"),
+        ("farm-messinia", "2025-06-25", "soil", "Biochar application"),
+        ("farm-messinia", "2025-06-29", "monitoring", "End-month survey"),
+        # Cretan Heritage
+        ("farm-crete", "2025-06-02", "irrigation", "Ancient grove watering"),
+        ("farm-crete", "2025-06-05", "monitoring", "Heritage tree check"),
+        ("farm-crete", "2025-06-09", "soil", "Terracing maintenance"),
+        ("farm-crete", "2025-06-12", "pruning", "Traditional pruning"),
+        ("farm-crete", "2025-06-16", "fire", "Stone wall firebreak"),
+        ("farm-crete", "2025-06-19", "irrigation", "Channel clearing"),
+        ("farm-crete", "2025-06-23", "monitoring", "Tourism impact audit"),
+        ("farm-crete", "2025-06-26", "soil", "Erosion monitoring"),
+        ("farm-crete", "2025-06-30", "monitoring", "Monthly biodiversity"),
+        # Andalusia Estate
+        ("farm-andalusia", "2025-06-01", "irrigation", "Pivot system check"),
+        ("farm-andalusia", "2025-06-04", "monitoring", "Drone thermal scan"),
+        ("farm-andalusia", "2025-06-08", "soil", "pH testing"),
+        ("farm-andalusia", "2025-06-11", "pruning", "Machine pruning"),
+        ("farm-andalusia", "2025-06-15", "fire", "Controlled burn prep"),
+        ("farm-andalusia", "2025-06-18", "irrigation", "Deficit irrigation"),
+        ("farm-andalusia", "2025-06-22", "monitoring", "Verticillium check"),
+        ("farm-andalusia", "2025-06-25", "soil", "Cover crop seeding"),
+        ("farm-andalusia", "2025-06-29", "monitoring", "Harvest planning"),
+        # Tuscan Hills
+        ("farm-tuscany", "2025-06-02", "monitoring", "DOP compliance check"),
+        ("farm-tuscany", "2025-06-05", "irrigation", "Rain harvesting"),
+        ("farm-tuscany", "2025-06-09", "soil", "Terrace repair"),
+        ("farm-tuscany", "2025-06-12", "pruning", "Artistic pruning"),
+        ("farm-tuscany", "2025-06-16", "monitoring", "Peacock spot check"),
+        ("farm-tuscany", "2025-06-19", "fire", "Grass management"),
+        ("farm-tuscany", "2025-06-23", "irrigation", "Irrigation review"),
+        ("farm-tuscany", "2025-06-26", "soil", "Biodynamic prep"),
+        ("farm-tuscany", "2025-06-30", "monitoring", "Quality assessment"),
+        # Alentejo Grove
+        ("farm-alentejo", "2025-06-01", "irrigation", "Dam level check"),
+        ("farm-alentejo", "2025-06-04", "monitoring", "Superintensive check"),
+        ("farm-alentejo", "2025-06-08", "soil", "Gypsum application"),
+        ("farm-alentejo", "2025-06-11", "pruning", "Hedgerow trim"),
+        ("farm-alentejo", "2025-06-15", "fire", "Heat wave protocol"),
+        ("farm-alentejo", "2025-06-18", "irrigation", "Efficiency audit"),
+        ("farm-alentejo", "2025-06-22", "monitoring", "Xylella screening"),
+        ("farm-alentejo", "2025-06-25", "soil", "Mycorrhiza inoculation"),
+        ("farm-alentejo", "2025-06-29", "monitoring", "Harvest forecast"),
+    ]
+    c.executemany(
+        "INSERT OR REPLACE INTO workings (farm_id, date, task_type, task_description) VALUES (?,?,?,?)",
+        other_farm_tasks,
     )
 
     # ── Users (demo accounts) ──

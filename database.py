@@ -206,6 +206,17 @@ def init_db():
         )
     """)
 
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS audit_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT DEFAULT (datetime('now')),
+            username TEXT,
+            action TEXT NOT NULL,
+            detail TEXT,
+            ip TEXT
+        )
+    """)
+
     conn.commit()
     conn.close()
 

@@ -340,6 +340,8 @@ def calculate_fsd(territory_id, year, bsep_result=None):
     urgency = row["budget_urgency"] or 3
 
     # Adjust need based on BSEP escalation (if emergency, need increases)
+    # NOTE: We compute adjusted_need for gap/ratio but do NOT overwrite
+    # budget_scientific_need in the DB to avoid compounding on repeat runs.
     if bsep_result and bsep_result.get("bsep_escalation") == "Emergency":
         multiplier = 1.3
         scenario = "Ecological Recovery"
@@ -356,8 +358,6 @@ def calculate_fsd(territory_id, year, bsep_result=None):
     discounting_ratio = round(current / adjusted_need, 3) if adjusted_need > 0 else 1.0
 
     return {
-        "budget_scientific_need": adjusted_need,
-        "budget_current": current,
         "budget_gap": gap,
         "budget_discounting_ratio": discounting_ratio,
         "budget_scenario": scenario,
