@@ -328,6 +328,15 @@ async function loadAllData() {
 }
 
 // ===== TERRITORY & YEAR SELECTORS =====
+function updateEngineSelectLabels() {
+    const engineSel = document.querySelector('.engine-select');
+    if (!engineSel) return;
+    engineSel.querySelectorAll('option').forEach(opt => {
+        const name = opt.textContent.replace(/\s*—\s*\d{4}$/, '');
+        opt.textContent = `${name} — ${YEAR}`;
+    });
+}
+
 document.getElementById('territory-select')?.addEventListener('change', (e) => {
     TERRITORY = e.target.value;
     FARM = `farm-${TERRITORY}`;
@@ -341,6 +350,7 @@ document.getElementById('territory-select')?.addEventListener('change', (e) => {
 document.getElementById('year-select')?.addEventListener('change', (e) => {
     YEAR = parseInt(e.target.value);
     localStorage.setItem('roatis_year', YEAR);
+    updateEngineSelectLabels();
     loadAllData();
 });
 
@@ -899,6 +909,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (terrSel) terrSel.value = TERRITORY;
         if (yearSel) yearSel.value = YEAR;
         if (engineSel) engineSel.value = TERRITORY;
+        updateEngineSelectLabels();
         loadAllData();
     } else {
         showLogin();

@@ -163,7 +163,7 @@ BSEP_CATEGORIES = {
 }
 
 
-def calculate_bsep(territory_id, year):
+def calculate_bsep(territory_id, year, tars_score_override=None):
     """Calculate BSEP from TARS severity, population loss, and recovery data."""
     conn = get_db()
 
@@ -186,7 +186,7 @@ def calculate_bsep(territory_id, year):
     if not scores:
         return None
 
-    tars = scores["tars_score"] or 0
+    tars = tars_score_override if tars_score_override is not None else (scores["tars_score"] or 0)
     fire = scores["tars_wildfire_events"] or 0
     drought = scores["tars_drought_days"] or 0
     recovery_yrs = scores["bsep_recovery_target_years"] or 0
@@ -301,7 +301,7 @@ def calculate_caii(territory_id, year):
         "caii_community_governance": gov,
         "caii_human_capital": hc,
         "caii_social_collaboration": soc,
-        "caii_territorial_intelligence": round(ti_boosted, 1),
+        "caii_territorial_intelligence": ti,
         "caii_triggered_missions": missions,
     }
 
@@ -376,7 +376,9 @@ def recalculate_all(territory_id, year):
     # Run engines in dependency order
     rti = calculate_rti(territory_id, year)
     tars = calculate_tars(territory_id, year)
-    bsep = calculate_bsep(territory_id, year)
+    # Pass fresh TARS score to BSEP so it doesn't use stale DB value
+    fresh_tars_score = tars.get("tars_score") if tars else None
+    bsep = calculate_bsep(territory_id, year, tars_score_override=fresh_tars_score)
     caii = calculate_caii(territory_id, year)
     fsd = calculate_fsd(territory_id, year, bsep_result=bsep)
 
