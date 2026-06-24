@@ -1,8 +1,14 @@
-// ===== ROA-TIS Frontend — API-Connected =====
+// ===== ROA-TIS Frontend — Stage 3: Live Interactive Dashboard =====
 const API_BASE = 'http://127.0.0.1:5000/api';
-const TERRITORY = 'elysian';
-const YEAR = 2025;
-const FARM = 'farm-elysian';
+
+// ===== STATE (reactive — changes trigger reload) =====
+let TERRITORY = 'elysian';
+let YEAR = 2025;
+let FARM = 'farm-elysian';
+
+// Chart instances (for destroy/rebuild on data change)
+let trajectoryChart = null;
+let comparisonChart = null;
 
 // ===== VIEW SWITCHING =====
 document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -21,10 +27,10 @@ async function fetchJSON(endpoint) {
     return res.json();
 }
 
-// ===== CHARTS =====
-document.addEventListener('DOMContentLoaded', async () => {
+// ===== MAIN DATA LOADER =====
+async function loadAllData() {
+    const statusDot = document.getElementById('api-status');
     try {
-        // Load all data in parallel
         const [dashboard, trajectory, comparison, engines, farm, workings] = await Promise.all([
             fetchJSON(`/dashboard/${TERRITORY}/${YEAR}`),
             fetchJSON(`/trajectory/${TERRITORY}`),
@@ -34,45 +40,95 @@ document.addEventListener('DOMContentLoaded', async () => {
             fetchJSON(`/farm/${FARM}/workings?month=2025-06`),
         ]);
 
-        // ── Update Dashboard KPIs ──
-        updateKPIs(dashboard.kpis);
+        updateKPIs(dashboard.kpis, engines);
         updateCommandCenter(dashboard.command_center);
         updatePriorities(dashboard.priorities);
-
-        // ── Update Engine View ──
         updateEngineCards(engines);
-
-        // ── Update Farmer Sidebar ──
         updateFarmerStats(farm);
-
-        // ── Render Charts ──
         renderTrajectoryChart(trajectory);
         renderComparisonChart(comparison);
         renderRevenueChart();
         renderCapitalChart();
         renderRoadmapChart();
+        loadObservationHistory();
 
-        console.log('ROA-TIS: All data loaded from API');
+        if (statusDot) { statusDot.classList.add('online'); statusDot.classList.remove('offline'); }
+        console.log(`ROA-TIS: Data loaded for ${TERRITORY} / ${YEAR}`);
     } catch (err) {
         console.error('ROA-TIS API Error:', err);
-        // Fallback: charts still render with static data if API is down
+        if (statusDot) { statusDot.classList.remove('online'); statusDot.classList.add('offline'); }
         renderRevenueChart();
         renderCapitalChart();
         renderRoadmapChart();
     }
-});
-
-// ===== KPI UPDATES =====
-function updateKPIs(kpis) {
-    const kpiCards = document.querySelectorAll('#view-dashboard .kpi-card');
-    if (kpiCards.length >= 4) {
-        kpiCards[0].querySelector('.kpi-value').textContent = kpis.rti;
-        kpiCards[1].querySelector('.kpi-value').textContent = kpis.tars;
-        kpiCards[2].querySelector('.kpi-value').textContent = kpis.bsep;
-        kpiCards[3].querySelector('.kpi-value').textContent = '\u20AC' + kpis.budget_gap + 'M';
-    }
 }
 
+// ===== TERRITORY & YEAR SELECTORS =====
+document.getElementById('territory-select')?.addEventListener('change', (e) => {
+    TERRITORY = e.target.value;
+    FARM = `farm-${TERRITORY}`;
+    loadAllData();
+});
+
+document.getElementById('year-select')?.addEventListener('change', (e) => {
+    YEAR = parseInt(e.target.value);
+    loadAllData();
+});
+
+// ===== KPI UPDATES WITH CONFIDENCE =====
+function updateKPIs(kpis, engines) {
+    // RTI
+    const rtiVal = document.getElementById('kpi-rti-value');
+    const rtiTrend = document.getElementById('kpi-rti-trend');
+    const rtiConf = document.getElementById('kpi-rti-conf');
+    if (rtiVal) {
+        rtiVal.textContent = kpis.rti;
+        rtiVal.className = 'kpi-value ' + (kpis.rti >= 70 ? 'good' : kpis.rti >= 40 ? 'warning' : 'alert');
+    }
+    if (rtiTrend) rtiTrend.textContent = engines?.rti?.confidence ? `Confidence: ${engines.rti.confidence}` : '';
+    if (rtiConf) rtiConf.innerHTML = engines?.rti?.confidence ? renderConfidenceBadge(engines.rti.confidence) : '';
+
+    // TARS
+    const tarsVal = document.getElementById('kpi-tars-value');
+    const tarsTrend = document.getElementById('kpi-tars-trend');
+    const tarsConf = document.getElementById('kpi-tars-conf');
+    if (tarsVal) {
+        tarsVal.textContent = kpis.tars;
+        tarsVal.className = 'kpi-value ' + (kpis.tars <= 5 ? 'good' : kpis.tars <= 10 ? 'warning' : 'alert');
+    }
+    if (tarsTrend) tarsTrend.textContent = engines?.tars?.status || '';
+    if (tarsConf) tarsConf.innerHTML = engines?.tars?.status ? `<span class="conf-badge conf-${engines.tars.status.toLowerCase()}">${engines.tars.status}</span>` : '';
+
+    // BSEP
+    const bsepVal = document.getElementById('kpi-bsep-value');
+    const bsepTrend = document.getElementById('kpi-bsep-trend');
+    const bsepConf = document.getElementById('kpi-bsep-conf');
+    if (bsepVal) {
+        bsepVal.textContent = kpis.bsep;
+        bsepVal.className = 'kpi-value ' + (kpis.bsep >= 60 ? 'alert' : kpis.bsep >= 30 ? 'warning' : 'good');
+    }
+    if (bsepTrend) bsepTrend.textContent = engines?.bsep?.escalation || '';
+    if (bsepConf) bsepConf.innerHTML = engines?.bsep?.escalation ? `<span class="conf-badge conf-${engines.bsep.escalation.toLowerCase()}">${engines.bsep.escalation}</span>` : '';
+
+    // Budget
+    const budgetVal = document.getElementById('kpi-budget-value');
+    const budgetTrend = document.getElementById('kpi-budget-trend');
+    const budgetConf = document.getElementById('kpi-budget-conf');
+    if (budgetVal) {
+        budgetVal.textContent = '\u20AC' + kpis.budget_gap + 'M';
+        budgetVal.className = 'kpi-value ' + (kpis.budget_gap > 150 ? 'alert' : kpis.budget_gap > 50 ? 'warning' : 'good');
+    }
+    if (budgetTrend) budgetTrend.textContent = engines?.budget?.scenario || '';
+    if (budgetConf) budgetConf.innerHTML = engines?.budget?.urgency ? `<span class="conf-badge conf-urgency">Urgency: ${engines.budget.urgency}/5</span>` : '';
+}
+
+function renderConfidenceBadge(grade) {
+    const colors = { A: '#2ecc71', B: '#f7b731', C: '#ff6b6b' };
+    const labels = { A: 'High (field data)', B: 'Medium (partial data)', C: 'Low (estimated)' };
+    return `<span class="conf-badge" style="background:${colors[grade] || '#666'}">${grade} \u2014 ${labels[grade] || 'Unknown'}</span>`;
+}
+
+// ===== COMMAND CENTER =====
 function updateCommandCenter(commands) {
     const tbody = document.querySelector('.command-table tbody');
     if (!tbody || commands.length === 0) return;
@@ -91,6 +147,7 @@ function updateCommandCenter(commands) {
     }).join('');
 }
 
+// ===== PRIORITIES =====
 function updatePriorities(priorities) {
     const list = document.querySelector('#view-dashboard .priority-list');
     if (!list || priorities.length === 0) return;
@@ -107,7 +164,7 @@ function updatePriorities(priorities) {
     `).join('');
 }
 
-// ===== ENGINE UPDATES =====
+// ===== ENGINE CARDS =====
 function updateEngineCards(engines) {
     const cards = document.querySelectorAll('.engine-card');
     if (cards.length < 6) return;
@@ -121,6 +178,7 @@ function updateEngineCards(engines) {
     rtiParams[3].textContent = engines.rti.params.pollinator_index + '%';
     rtiParams[4].textContent = engines.rti.params.soil_organic_matter + '%';
     rtiParams[5].textContent = engines.rti.params.habitat_connectivity + '%';
+    cards[0].querySelector('.engine-confidence').innerHTML = `Confidence: <strong>${engines.rti.confidence}</strong> ${renderConfidenceBadge(engines.rti.confidence)}`;
 
     // TARS
     cards[1].querySelector('.engine-score').textContent = engines.tars.score;
@@ -131,6 +189,7 @@ function updateEngineCards(engines) {
     tarsParams[3].textContent = engines.tars.params.drought_days;
     tarsParams[4].textContent = engines.tars.params.heatwave_days;
     tarsParams[5].textContent = engines.tars.params.years_since_event;
+    cards[1].querySelector('.engine-confidence').innerHTML = `Status: <span class="badge-inline ${engines.tars.status.toLowerCase()}">${engines.tars.status}</span>`;
 
     // OPCI
     cards[2].querySelector('.engine-score').textContent = engines.opci.score;
@@ -168,7 +227,7 @@ function updateEngineCards(engines) {
     budgetParams[4].textContent = engines.budget.urgency + ' / 5';
 }
 
-// ===== FARMER STATS UPDATE =====
+// ===== FARMER STATS =====
 function updateFarmerStats(farmData) {
     const stats = document.querySelectorAll('.stat-row span:last-child');
     if (stats.length < 6 || !farmData.latest_production) return;
@@ -185,7 +244,8 @@ function updateFarmerStats(farmData) {
 function renderTrajectoryChart(data) {
     const ctx = document.getElementById('trajectoryChart');
     if (!ctx) return;
-    new Chart(ctx, {
+    if (trajectoryChart) trajectoryChart.destroy();
+    trajectoryChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: data.labels,
@@ -211,7 +271,8 @@ function renderTrajectoryChart(data) {
 function renderComparisonChart(data) {
     const ctx = document.getElementById('roaComparisonChart');
     if (!ctx) return;
-    new Chart(ctx, {
+    if (comparisonChart) comparisonChart.destroy();
+    comparisonChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: data.labels,
@@ -297,21 +358,33 @@ function renderRoadmapChart() {
     });
 }
 
-// ===== INTERACTIONS =====
-document.querySelector('.btn-submit')?.addEventListener('click', async (e) => {
+// ===== OBSERVATION FORM =====
+document.getElementById('btn-submit-obs')?.addEventListener('click', async (e) => {
     e.preventDefault();
     const btn = e.target;
-    const textarea = document.querySelector('.today-observation textarea');
-    const checks = document.querySelectorAll('.obs-check input');
+    const obsType = document.getElementById('obs-type')?.value || 'general';
+    const obsDate = document.getElementById('obs-date')?.value || new Date().toISOString().slice(0, 10);
+    const description = document.getElementById('obs-description')?.value || '';
+    const bufferClear = document.getElementById('obs-buffer')?.checked || false;
+    const pathsPassable = document.getElementById('obs-paths')?.checked || false;
+    const noIgnition = document.getElementById('obs-ignition')?.checked || false;
+
+    if (!description.trim()) {
+        showFeedback('Please describe your observation.', 'error');
+        return;
+    }
 
     const payload = {
-        date: new Date().toISOString().slice(0, 10),
-        observation_type: 'fire_patrol',
-        description: textarea?.value || '',
-        buffer_zone_clear: checks[0]?.checked || false,
-        access_paths_passable: checks[1]?.checked || false,
-        no_ignition_risk: checks[2]?.checked || false,
+        date: obsDate,
+        observation_type: obsType,
+        description: description,
+        buffer_zone_clear: bufferClear,
+        access_paths_passable: pathsPassable,
+        no_ignition_risk: noIgnition,
     };
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
 
     try {
         const res = await fetch(`${API_BASE}/farm/${FARM}/observations`, {
@@ -320,36 +393,88 @@ document.querySelector('.btn-submit')?.addEventListener('click', async (e) => {
             body: JSON.stringify(payload),
         });
         if (res.ok) {
-            btn.textContent = '\u2713 Observation Saved to Database';
-            btn.style.background = '#2ecc71';
+            showFeedback('Observation saved! Recalculating engines...', 'success');
+            // Clear form
+            if (document.getElementById('obs-description')) document.getElementById('obs-description').value = '';
+            if (document.getElementById('obs-buffer')) document.getElementById('obs-buffer').checked = false;
+            if (document.getElementById('obs-paths')) document.getElementById('obs-paths').checked = false;
+            if (document.getElementById('obs-ignition')) document.getElementById('obs-ignition').checked = false;
+
+            // Auto-recalculate after observation
+            await fetch(`${API_BASE}/recalculate/${TERRITORY}/${YEAR}`, { method: 'POST' });
+
+            // Reload dashboard data
+            const [dashboard, engines] = await Promise.all([
+                fetchJSON(`/dashboard/${TERRITORY}/${YEAR}`),
+                fetchJSON(`/engines/${TERRITORY}/${YEAR}`),
+            ]);
+            updateKPIs(dashboard.kpis, engines);
+            updateEngineCards(engines);
+            loadObservationHistory();
+
+            showFeedback('Engines recalculated with new observation data.', 'success');
+            btn.textContent = 'Submit Observation';
         } else {
-            btn.textContent = '\u2717 Error saving';
-            btn.style.background = '#e74c3c';
+            showFeedback('Error saving observation.', 'error');
+            btn.textContent = 'Submit Observation';
         }
     } catch {
-        btn.textContent = '\u2717 API unavailable';
-        btn.style.background = '#e74c3c';
+        showFeedback('API unavailable. Is the server running?', 'error');
+        btn.textContent = 'Submit Observation';
     }
-    setTimeout(() => { btn.textContent = 'Submit Observation'; btn.style.background = '#4ecdc4'; }, 2500);
+    btn.disabled = false;
 });
 
+function showFeedback(message, type) {
+    const fb = document.getElementById('obs-feedback');
+    if (!fb) return;
+    fb.textContent = message;
+    fb.className = 'obs-feedback ' + type;
+    setTimeout(() => { fb.textContent = ''; fb.className = 'obs-feedback'; }, 4000);
+}
+
+// ===== OBSERVATION HISTORY =====
+async function loadObservationHistory() {
+    const container = document.getElementById('obs-history');
+    if (!container) return;
+    try {
+        const obs = await fetchJSON(`/farm/${FARM}/observations`);
+        if (obs.length === 0) {
+            container.innerHTML = '<p class="obs-empty">No observations recorded yet.</p>';
+            return;
+        }
+        container.innerHTML = `
+            <h5>Recent Observations</h5>
+            <div class="obs-list">
+                ${obs.slice(0, 5).map(o => `
+                    <div class="obs-entry">
+                        <span class="obs-date">${o.date}</span>
+                        <span class="obs-type-tag">${o.observation_type || 'general'}</span>
+                        <span class="obs-desc">${o.description || '(no description)'}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } catch {
+        container.innerHTML = '';
+    }
+}
+
+// ===== RECOMPUTE BUTTON =====
 document.querySelector('.btn-compute')?.addEventListener('click', async (e) => {
     const btn = e.target;
     btn.textContent = '\u21BB Running all engines...';
     btn.style.opacity = '0.7';
     try {
-        // Trigger server-side recalculation
         const recalcRes = await fetch(`${API_BASE}/recalculate/${TERRITORY}/${YEAR}`, { method: 'POST' });
         if (!recalcRes.ok) throw new Error('Recalculate failed');
-        const recalcData = await recalcRes.json();
 
-        // Reload updated data
         const [dashboard, engines] = await Promise.all([
             fetchJSON(`/dashboard/${TERRITORY}/${YEAR}`),
             fetchJSON(`/engines/${TERRITORY}/${YEAR}`),
         ]);
 
-        updateKPIs(dashboard.kpis);
+        updateKPIs(dashboard.kpis, engines);
         updateEngineCards(engines);
         btn.textContent = '\u2713 All engines recalculated';
         btn.style.opacity = '1';
@@ -359,4 +484,11 @@ document.querySelector('.btn-compute')?.addEventListener('click', async (e) => {
         btn.style.background = '#e74c3c';
     }
     setTimeout(() => { btn.textContent = '\u21BB Recompute All Engines'; btn.style.background = '#4ecdc4'; btn.style.opacity = '1'; }, 3000);
+});
+
+// ===== SET DEFAULT DATE & LOAD =====
+document.addEventListener('DOMContentLoaded', () => {
+    const dateInput = document.getElementById('obs-date');
+    if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
+    loadAllData();
 });

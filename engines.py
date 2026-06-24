@@ -394,41 +394,37 @@ def recalculate_all(territory_id, year):
     if not results:
         return None
 
-    # Update database
+    # Update database — use COALESCE to preserve existing values when engine returns None
     conn = get_db()
-    conn.execute(
-        """UPDATE engine_scores SET
-            rti_score = ?, rti_stewardship_capacity = ?, rti_ecological_literacy = ?,
-            rti_wildlife_balance = ?, rti_pollinator_index = ?, rti_soil_organic_matter = ?,
-            rti_habitat_connectivity = ?, rti_confidence = ?,
-            tars_score = ?, tars_status = ?,
-            bsep_score = ?, bsep_category = ?, bsep_escalation = ?,
-            bsep_recovery_target_years = ?, bsep_current_recovery_pct = ?,
-            bsep_human_capital_risk = ?,
-            caii_score = ?, caii_community_governance = ?, caii_human_capital = ?,
-            caii_social_collaboration = ?, caii_territorial_intelligence = ?,
-            caii_triggered_missions = ?,
-            budget_scientific_need = ?, budget_current = ?, budget_gap = ?,
-            budget_discounting_ratio = ?, budget_scenario = ?, budget_urgency = ?
-        WHERE territory_id = ? AND year = ?""",
-        (
-            results.get("rti_score"), results.get("rti_stewardship_capacity"),
-            results.get("rti_ecological_literacy"), results.get("rti_wildlife_balance"),
-            results.get("rti_pollinator_index"), results.get("rti_soil_organic_matter"),
-            results.get("rti_habitat_connectivity"), results.get("rti_confidence"),
-            results.get("tars_score"), results.get("tars_status"),
-            results.get("bsep_score"), results.get("bsep_category"),
-            results.get("bsep_escalation"), results.get("bsep_recovery_target_years"),
-            results.get("bsep_current_recovery_pct"), results.get("bsep_human_capital_risk"),
-            results.get("caii_score"), results.get("caii_community_governance"),
-            results.get("caii_human_capital"), results.get("caii_social_collaboration"),
-            results.get("caii_territorial_intelligence"), results.get("caii_triggered_missions"),
-            results.get("budget_scientific_need"), results.get("budget_current"),
-            results.get("budget_gap"), results.get("budget_discounting_ratio"),
-            results.get("budget_scenario"), results.get("budget_urgency"),
-            territory_id, year,
-        ),
-    )
+
+    # Build dynamic SET clause: only update fields that were computed
+    set_parts = []
+    values = []
+    field_list = [
+        "rti_score", "rti_stewardship_capacity", "rti_ecological_literacy",
+        "rti_wildlife_balance", "rti_pollinator_index", "rti_soil_organic_matter",
+        "rti_habitat_connectivity", "rti_confidence",
+        "tars_score", "tars_status",
+        "bsep_score", "bsep_category", "bsep_escalation",
+        "bsep_recovery_target_years", "bsep_current_recovery_pct", "bsep_human_capital_risk",
+        "caii_score", "caii_community_governance", "caii_human_capital",
+        "caii_social_collaboration", "caii_territorial_intelligence", "caii_triggered_missions",
+        "budget_scientific_need", "budget_current", "budget_gap",
+        "budget_discounting_ratio", "budget_scenario", "budget_urgency",
+    ]
+
+    for field in field_list:
+        if field in results:
+            set_parts.append(f"{field} = ?")
+            values.append(results[field])
+
+    if not set_parts:
+        conn.close()
+        return results
+
+    values.extend([territory_id, year])
+    sql = f"UPDATE engine_scores SET {', '.join(set_parts)} WHERE territory_id = ? AND year = ?"
+    conn.execute(sql, values)
     conn.commit()
     conn.close()
 

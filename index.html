@@ -23,9 +23,27 @@
             <button class="nav-tab" data-view="architecture">Architecture &amp; Research</button>
         </div>
         <div class="nav-meta">
-            <span class="meta-roa">ROA: Elysian EVOO</span>
-            <span class="meta-year">2025</span>
-            <span class="status-dot online"></span>
+            <select id="territory-select" class="nav-select">
+                <option value="elysian">Elysian EVOO</option>
+                <option value="sella">Sella</option>
+                <option value="kastritsi">Kastritsi</option>
+                <option value="wgreece">Western Greece</option>
+                <option value="chalandritsa">Chalandritsa</option>
+                <option value="messinia">Messinia</option>
+                <option value="crete">Crete</option>
+                <option value="andalusia">Andalusia</option>
+                <option value="tuscany">Tuscany</option>
+                <option value="alentejo">Alentejo</option>
+            </select>
+            <select id="year-select" class="nav-select">
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020">2020</option>
+            </select>
+            <span class="status-dot online" id="api-status"></span>
         </div>
     </nav>
 
@@ -34,25 +52,29 @@
         <div class="dashboard-grid">
             <!-- Top KPI Row -->
             <div class="kpi-row">
-                <div class="kpi-card">
+                <div class="kpi-card" id="kpi-rti">
                     <div class="kpi-label">Regenerative Territorial Index</div>
-                    <div class="kpi-value good">85.2</div>
-                    <div class="kpi-trend up">↑ +3.1 from 2015</div>
+                    <div class="kpi-value good" id="kpi-rti-value">--</div>
+                    <div class="kpi-trend" id="kpi-rti-trend"></div>
+                    <div class="kpi-confidence" id="kpi-rti-conf"></div>
                 </div>
-                <div class="kpi-card">
+                <div class="kpi-card" id="kpi-tars">
                     <div class="kpi-label">TARS — Anomaly Risk Score</div>
-                    <div class="kpi-value warning">6.4</div>
-                    <div class="kpi-trend down">↓ -1.9 from 2015</div>
+                    <div class="kpi-value warning" id="kpi-tars-value">--</div>
+                    <div class="kpi-trend" id="kpi-tars-trend"></div>
+                    <div class="kpi-confidence" id="kpi-tars-conf"></div>
                 </div>
-                <div class="kpi-card">
+                <div class="kpi-card" id="kpi-bsep">
                     <div class="kpi-label">Black Swan Exposure</div>
-                    <div class="kpi-value alert">81.8</div>
-                    <div class="kpi-trend neutral">Emergency Escalation</div>
+                    <div class="kpi-value alert" id="kpi-bsep-value">--</div>
+                    <div class="kpi-trend" id="kpi-bsep-trend"></div>
+                    <div class="kpi-confidence" id="kpi-bsep-conf"></div>
                 </div>
-                <div class="kpi-card">
+                <div class="kpi-card" id="kpi-budget">
                     <div class="kpi-label">Future Sustainability Discounting</div>
-                    <div class="kpi-value warning">€199.9M</div>
-                    <div class="kpi-trend neutral">Uncovered Future Need</div>
+                    <div class="kpi-value warning" id="kpi-budget-value">--</div>
+                    <div class="kpi-trend" id="kpi-budget-trend"></div>
+                    <div class="kpi-confidence" id="kpi-budget-conf"></div>
                 </div>
             </div>
 
@@ -284,13 +306,36 @@
                         </div>
                         <div class="today-observation">
                             <h5>Record Observation</h5>
-                            <textarea placeholder="Describe what you observed today..."></textarea>
-                            <div class="obs-actions">
-                                <label class="obs-check"><input type="checkbox"> Buffer zone clear</label>
-                                <label class="obs-check"><input type="checkbox"> Access paths passable</label>
-                                <label class="obs-check"><input type="checkbox"> No ignition risk detected</label>
+                            <div class="obs-form">
+                                <div class="obs-form-row">
+                                    <label class="obs-label">Observation Type</label>
+                                    <select id="obs-type" class="obs-select">
+                                        <option value="fire_buffer">Fire Buffer Patrol</option>
+                                        <option value="pest_monitoring">Pest Monitoring</option>
+                                        <option value="soil_check">Soil Health Check</option>
+                                        <option value="irrigation">Irrigation Status</option>
+                                        <option value="biodiversity">Biodiversity Observation</option>
+                                        <option value="harvest">Harvest Activity</option>
+                                        <option value="general">General Note</option>
+                                    </select>
+                                </div>
+                                <div class="obs-form-row">
+                                    <label class="obs-label">Date</label>
+                                    <input type="date" id="obs-date" class="obs-input" />
+                                </div>
+                                <div class="obs-form-row">
+                                    <label class="obs-label">Description</label>
+                                    <textarea id="obs-description" placeholder="Describe what you observed today..." rows="3"></textarea>
+                                </div>
+                                <div class="obs-actions">
+                                    <label class="obs-check"><input type="checkbox" id="obs-buffer"> Buffer zone clear</label>
+                                    <label class="obs-check"><input type="checkbox" id="obs-paths"> Access paths passable</label>
+                                    <label class="obs-check"><input type="checkbox" id="obs-ignition"> No ignition risk detected</label>
+                                </div>
                             </div>
-                            <button class="btn-submit">Submit Observation</button>
+                            <button class="btn-submit" id="btn-submit-obs">Submit Observation</button>
+                            <div id="obs-feedback" class="obs-feedback"></div>
+                            <div id="obs-history" class="obs-history"></div>
                         </div>
                     </div>
                 </div>
