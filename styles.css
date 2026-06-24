@@ -222,7 +222,7 @@
 .map-header { margin-bottom: 16px; }
 .map-header h2 { font-size: 20px; color: #e7e9ea; }
 .map-subtitle { font-size: 13px; color: #8899a6; margin-top: 4px; }
-.territory-map { width: 100%; height: 500px; border-radius: 12px; border: 1px solid #2e3640; }
+.territory-map { width: 100%; height: calc(100vh - 200px); min-height: 500px; border-radius: 12px; border: 1px solid #2e3640; }
 .map-legend-bar { display: flex; gap: 20px; margin-top: 12px; justify-content: center; }
 .map-legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #8899a6; }
 .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
