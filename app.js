@@ -2668,6 +2668,7 @@ function setLanguage(lang) {
             if (!parent) return NodeFilter.FILTER_REJECT;
             const tag = parent.tagName;
             if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'PRE' || tag === 'CODE') return NodeFilter.FILTER_REJECT;
+            if (parent.classList.contains('nav-tab')) return NodeFilter.FILTER_REJECT;
             return NodeFilter.FILTER_ACCEPT;
         }}
     );
@@ -2710,10 +2711,14 @@ function setLanguage(lang) {
         farmer: dict['Farmer Portal'], engines: dict['Engine View'],
         investor: dict['Investor & Commercial'], architecture: dict['Architecture & Research'],
         api: dict['API Docs'], compare: dict['Compare'] };
+    const englishNav = { dashboard: 'Authority Dashboard', map: 'Territory Map',
+        farmer: 'Farmer Portal', engines: 'Engine View',
+        investor: 'Investor & Commercial', architecture: 'Architecture & Research',
+        api: 'API Docs', compare: 'Compare' };
     document.querySelectorAll('.nav-tab').forEach(tab => {
         const key = tab.dataset.view;
         if (navMap[key]) {
-            if (!originalTexts.has(tab)) originalTexts.set(tab, tab.textContent);
+            if (!originalTexts.has(tab)) originalTexts.set(tab, englishNav[key]);
             tab.textContent = navMap[key];
         }
     });
