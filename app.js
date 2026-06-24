@@ -138,13 +138,46 @@ function updateCommandCenter(commands) {
                           cmd.status === 'PASS' ? 'pass' :
                           cmd.status === 'Transitional' ? 'transitional' : 'insufficient';
         const isAlert = cmd.status === 'Emergency Escalation' ? 'class="row-alert"' : '';
+        const target = getActionTarget(cmd.action_label);
         return `<tr ${isAlert}>
             <td>${cmd.question}</td>
             <td><strong>${cmd.live_signal}</strong></td>
             <td><span class="badge ${badgeClass}">${cmd.status}</span></td>
-            <td><a href="#" class="action-link">${cmd.action_label}</a></td>
+            <td><a href="#" class="action-link" data-target="${target}">${cmd.action_label}</a></td>
         </tr>`;
     }).join('');
+
+    // Attach click handlers to action links
+    tbody.querySelectorAll('.action-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = e.target.dataset.target;
+            switchToView(target);
+        });
+    });
+}
+
+function getActionTarget(label) {
+    if (label.includes('Command') || label.includes('Review')) return 'engines';
+    if (label.includes('Investment')) return 'investor';
+    if (label.includes('Prioritize')) return 'dashboard-priorities';
+    if (label.includes('Escalate')) return 'engines';
+    return 'engines';
+}
+
+function switchToView(target) {
+    if (target === 'dashboard-priorities') {
+        // Scroll to priority board within dashboard
+        document.querySelector('#view-dashboard .priority-list')?.scrollIntoView({ behavior: 'smooth' });
+        return;
+    }
+    // Switch tab
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const tab = document.querySelector(`.nav-tab[data-view="${target}"]`);
+    if (tab) tab.classList.add('active');
+    const view = document.getElementById(`view-${target}`);
+    if (view) view.classList.add('active');
 }
 
 // ===== PRIORITIES =====
