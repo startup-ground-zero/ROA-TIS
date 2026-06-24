@@ -1154,51 +1154,189 @@ async function checkAlerts() {
 /* ===== #8 MULTI-LANGUAGE (i18n) ===== */
 const TRANSLATIONS = {
     en: {
+        // Nav tabs
         dashboard: 'Authority Dashboard', map: 'Territory Map', farmer: 'Farmer Portal',
         engines: 'Engine View', investor: 'Investor & Commercial', architecture: 'Architecture & Research',
-        api: 'API Docs', compare: 'Compare', compare_title: 'Territory Comparison',
-        logout: 'Logout', submit_obs: 'Submit Observation', export_pdf: '📄 Download Territory Report (PDF)',
-        export_csv: '📊 Export CSV', loading: 'Loading territory data...'
+        api: 'API Docs', compare: 'Compare',
+        // KPI labels
+        kpi_rti: 'Regenerative Territorial Index', kpi_tars: 'TARS — Anomaly Risk Score',
+        kpi_bsep: 'Black Swan Exposure', kpi_budget: 'Future Sustainability Discounting',
+        // Panel titles
+        command_center: 'Executive Command Center', trajectory_title: 'Territorial Health — 60-Year Trajectory',
+        priority_board: 'Executive Priority Board', comparison_title: 'Multi-ROA Comparison — 2025 Snapshot',
+        map_title: 'Territorial Intelligence Map — All ROA Territories',
+        map_subtitle: 'Click a territory marker to view its RTI score and navigate to its dashboard.',
+        workings_title: '365-Day Workings Matrix — June 2025',
+        engine_panel_title: 'Intelligence Engine Computation Panel',
+        audit_title: 'Audit Log (Last 20 events)', compare_title: 'Territory Comparison',
+        record_obs: 'Record Observation',
+        // Engine cards
+        engine_rti: 'RTI — Regenerative Territorial Index', engine_tars: 'TARS — Territorial Anomaly Risk',
+        engine_reg: 'REG — Regenerative Capacity', engine_bsep: 'Black Swan Intelligence',
+        engine_caii: 'CAII — Community Asset Intelligence', engine_budget: 'Budget Intelligence — Future Discounting',
+        // Today & conditions
+        today_title: 'Today — June 16, 2025', current_conditions: 'Current Conditions',
+        cond_temp: 'Temperature', cond_humid: 'Humidity', cond_wind: 'Wind', cond_fire: 'Fire Risk',
+        // Form labels
+        obs_type: 'Observation Type', obs_date: 'Date', obs_desc: 'Description',
+        obs_desc_placeholder: 'Describe what you observed today...',
+        obs_buffer: 'Buffer zone clear', obs_paths: 'Access paths passable',
+        obs_ignition: 'No ignition risk detected', obs_photo: 'Photo (optional)',
+        // Buttons
+        logout: 'Logout', submit_obs: 'Submit Observation',
+        export_pdf: '📄 Download Territory Report (PDF)', export_csv: '📊 Export CSV',
+        loading: 'Loading territory data...',
+        // Command table headers
+        th_question: 'Executive Question', th_signal: 'Live Signal', th_status: 'Status', th_action: 'Action',
+        // Farmer nav
+        fnav_daily: 'Daily Workings', fnav_data: 'Data Entry', fnav_expenses: 'Expenses',
+        fnav_health: 'My Grove Health', fnav_alerts: 'Alerts',
     },
     el: {
         dashboard: 'Πίνακας Αρχής', map: 'Χάρτης', farmer: 'Πύλη Αγρότη',
         engines: 'Μηχανές', investor: 'Επενδυτές', architecture: 'Αρχιτεκτονική',
-        api: 'API Τεκμ.', compare: 'Σύγκριση', compare_title: 'Σύγκριση Εδαφών',
-        logout: 'Αποσύνδεση', submit_obs: 'Υποβολή', export_pdf: '📄 Αναφορά (PDF)',
-        export_csv: '📊 Εξαγωγή CSV', loading: 'Φόρτωση δεδομένων...'
+        api: 'API Τεκμ.', compare: 'Σύγκριση',
+        kpi_rti: 'Αναγεννητικός Εδαφικός Δείκτης', kpi_tars: 'TARS — Βαθμολογία Κινδύνου',
+        kpi_bsep: 'Έκθεση σε Μαύρο Κύκνο', kpi_budget: 'Μελλοντική Βιωσιμότητα',
+        command_center: 'Εκτελεστικό Κέντρο Ελέγχου', trajectory_title: 'Εδαφική Υγεία — Τροχιά 60 Ετών',
+        priority_board: 'Πίνακας Προτεραιοτήτων', comparison_title: 'Σύγκριση ROA — 2025',
+        map_title: 'Χάρτης Εδαφικής Νοημοσύνης — Όλα τα Εδάφη',
+        map_subtitle: 'Κάντε κλικ σε ένα σημάδι για να δείτε τη βαθμολογία RTI.',
+        workings_title: 'Μήτρα Εργασιών 365 Ημερών — Ιούνιος 2025',
+        engine_panel_title: 'Πίνακας Υπολογισμού Μηχανών',
+        audit_title: 'Αρχείο Ελέγχου (Τελευταία 20)', compare_title: 'Σύγκριση Εδαφών',
+        record_obs: 'Καταγραφή Παρατήρησης',
+        engine_rti: 'RTI — Αναγεννητικός Εδαφικός Δείκτης', engine_tars: 'TARS — Εδαφικός Κίνδυνος Ανωμαλίας',
+        engine_reg: 'REG — Αναγεννητική Ικανότητα', engine_bsep: 'Νοημοσύνη Μαύρου Κύκνου',
+        engine_caii: 'CAII — Κοινοτική Νοημοσύνη', engine_budget: 'Δημοσιονομική Νοημοσύνη — Μελλοντική Προεξόφληση',
+        today_title: 'Σήμερα — 16 Ιουνίου 2025', current_conditions: 'Τρέχουσες Συνθήκες',
+        cond_temp: 'Θερμοκρασία', cond_humid: 'Υγρασία', cond_wind: 'Άνεμος', cond_fire: 'Κίνδυνος Πυρκαγιάς',
+        obs_type: 'Τύπος Παρατήρησης', obs_date: 'Ημερομηνία', obs_desc: 'Περιγραφή',
+        obs_desc_placeholder: 'Περιγράψτε τι παρατηρήσατε σήμερα...',
+        obs_buffer: 'Ζώνη ασφαλείας ελεύθερη', obs_paths: 'Μονοπάτια πρόσβασης βατά',
+        obs_ignition: 'Κανένας κίνδυνος ανάφλεξης', obs_photo: 'Φωτογραφία (προαιρετικό)',
+        logout: 'Αποσύνδεση', submit_obs: 'Υποβολή Παρατήρησης',
+        export_pdf: '📄 Αναφορά Εδάφους (PDF)', export_csv: '📊 Εξαγωγή CSV',
+        loading: 'Φόρτωση δεδομένων εδάφους...',
+        th_question: 'Εκτελεστική Ερώτηση', th_signal: 'Ζωντανό Σήμα', th_status: 'Κατάσταση', th_action: 'Ενέργεια',
+        fnav_daily: 'Ημερήσιες Εργασίες', fnav_data: 'Εισαγωγή Δεδομένων', fnav_expenses: 'Έξοδα',
+        fnav_health: 'Υγεία Ελαιώνα', fnav_alerts: 'Ειδοποιήσεις',
     },
     es: {
         dashboard: 'Panel de Autoridad', map: 'Mapa', farmer: 'Portal Agricultor',
         engines: 'Motores', investor: 'Inversores', architecture: 'Arquitectura',
-        api: 'Docs API', compare: 'Comparar', compare_title: 'Comparación Territorial',
-        logout: 'Cerrar sesión', submit_obs: 'Enviar', export_pdf: '📄 Informe (PDF)',
-        export_csv: '📊 Exportar CSV', loading: 'Cargando datos...'
+        api: 'Docs API', compare: 'Comparar',
+        kpi_rti: 'Índice Territorial Regenerativo', kpi_tars: 'TARS — Puntuación de Riesgo',
+        kpi_bsep: 'Exposición Cisne Negro', kpi_budget: 'Descuento Sostenibilidad Futura',
+        command_center: 'Centro de Mando Ejecutivo', trajectory_title: 'Salud Territorial — Trayectoria 60 Años',
+        priority_board: 'Panel de Prioridades', comparison_title: 'Comparación ROA — 2025',
+        map_title: 'Mapa de Inteligencia Territorial — Todos los Territorios',
+        map_subtitle: 'Haga clic en un marcador para ver su puntuación RTI.',
+        workings_title: 'Matriz de Trabajos 365 Días — Junio 2025',
+        engine_panel_title: 'Panel de Cálculo de Motores',
+        audit_title: 'Registro de Auditoría (Últimos 20)', compare_title: 'Comparación Territorial',
+        record_obs: 'Registrar Observación',
+        engine_rti: 'RTI — Índice Territorial Regenerativo', engine_tars: 'TARS — Riesgo de Anomalía Territorial',
+        engine_reg: 'REG — Capacidad Regenerativa', engine_bsep: 'Inteligencia Cisne Negro',
+        engine_caii: 'CAII — Inteligencia de Activos Comunitarios', engine_budget: 'Inteligencia Presupuestaria — Descuento Futuro',
+        today_title: 'Hoy — 16 de Junio, 2025', current_conditions: 'Condiciones Actuales',
+        cond_temp: 'Temperatura', cond_humid: 'Humedad', cond_wind: 'Viento', cond_fire: 'Riesgo de Incendio',
+        obs_type: 'Tipo de Observación', obs_date: 'Fecha', obs_desc: 'Descripción',
+        obs_desc_placeholder: 'Describa lo que observó hoy...',
+        obs_buffer: 'Zona buffer despejada', obs_paths: 'Caminos accesibles',
+        obs_ignition: 'Sin riesgo de ignición', obs_photo: 'Foto (opcional)',
+        logout: 'Cerrar sesión', submit_obs: 'Enviar Observación',
+        export_pdf: '📄 Informe Territorial (PDF)', export_csv: '📊 Exportar CSV',
+        loading: 'Cargando datos territoriales...',
+        th_question: 'Pregunta Ejecutiva', th_signal: 'Señal en Vivo', th_status: 'Estado', th_action: 'Acción',
+        fnav_daily: 'Trabajos Diarios', fnav_data: 'Entrada de Datos', fnav_expenses: 'Gastos',
+        fnav_health: 'Salud del Olivar', fnav_alerts: 'Alertas',
     },
     it: {
         dashboard: 'Pannello Autorità', map: 'Mappa', farmer: 'Portale Agricoltore',
         engines: 'Motori', investor: 'Investitori', architecture: 'Architettura',
-        api: 'Docs API', compare: 'Confronta', compare_title: 'Confronto Territoriale',
-        logout: 'Esci', submit_obs: 'Invia', export_pdf: '📄 Report (PDF)',
-        export_csv: '📊 Esporta CSV', loading: 'Caricamento dati...'
+        api: 'Docs API', compare: 'Confronta',
+        kpi_rti: 'Indice Territoriale Rigenerativo', kpi_tars: 'TARS — Punteggio di Rischio',
+        kpi_bsep: 'Esposizione Cigno Nero', kpi_budget: 'Sconto Sostenibilità Futura',
+        command_center: 'Centro Comando Esecutivo', trajectory_title: 'Salute Territoriale — Traiettoria 60 Anni',
+        priority_board: 'Pannello Priorità', comparison_title: 'Confronto ROA — 2025',
+        map_title: 'Mappa Intelligenza Territoriale — Tutti i Territori',
+        map_subtitle: 'Clicca su un indicatore per vedere il punteggio RTI.',
+        workings_title: 'Matrice Lavori 365 Giorni — Giugno 2025',
+        engine_panel_title: 'Pannello Calcolo Motori',
+        audit_title: 'Registro Audit (Ultimi 20)', compare_title: 'Confronto Territoriale',
+        record_obs: 'Registra Osservazione',
+        engine_rti: 'RTI — Indice Territoriale Rigenerativo', engine_tars: 'TARS — Rischio Anomalia Territoriale',
+        engine_reg: 'REG — Capacità Rigenerativa', engine_bsep: 'Intelligenza Cigno Nero',
+        engine_caii: 'CAII — Intelligenza Beni Comunitari', engine_budget: 'Intelligenza di Bilancio — Sconto Futuro',
+        today_title: 'Oggi — 16 Giugno 2025', current_conditions: 'Condizioni Attuali',
+        cond_temp: 'Temperatura', cond_humid: 'Umidità', cond_wind: 'Vento', cond_fire: 'Rischio Incendio',
+        obs_type: 'Tipo di Osservazione', obs_date: 'Data', obs_desc: 'Descrizione',
+        obs_desc_placeholder: 'Descrivi cosa hai osservato oggi...',
+        obs_buffer: 'Zona cuscinetto libera', obs_paths: 'Sentieri accessibili',
+        obs_ignition: 'Nessun rischio di accensione', obs_photo: 'Foto (opzionale)',
+        logout: 'Esci', submit_obs: 'Invia Osservazione',
+        export_pdf: '📄 Report Territoriale (PDF)', export_csv: '📊 Esporta CSV',
+        loading: 'Caricamento dati territoriali...',
+        th_question: 'Domanda Esecutiva', th_signal: 'Segnale Live', th_status: 'Stato', th_action: 'Azione',
+        fnav_daily: 'Lavori Giornalieri', fnav_data: 'Inserimento Dati', fnav_expenses: 'Spese',
+        fnav_health: 'Salute Oliveto', fnav_alerts: 'Avvisi',
     },
     pt: {
         dashboard: 'Painel Autoridade', map: 'Mapa', farmer: 'Portal Agricultor',
         engines: 'Motores', investor: 'Investidores', architecture: 'Arquitetura',
-        api: 'Docs API', compare: 'Comparar', compare_title: 'Comparação Territorial',
-        logout: 'Sair', submit_obs: 'Enviar', export_pdf: '📄 Relatório (PDF)',
-        export_csv: '📊 Exportar CSV', loading: 'Carregando dados...'
+        api: 'Docs API', compare: 'Comparar',
+        kpi_rti: 'Índice Territorial Regenerativo', kpi_tars: 'TARS — Pontuação de Risco',
+        kpi_bsep: 'Exposição Cisne Negro', kpi_budget: 'Desconto Sustentabilidade Futura',
+        command_center: 'Centro de Comando Executivo', trajectory_title: 'Saúde Territorial — Trajetória 60 Anos',
+        priority_board: 'Painel de Prioridades', comparison_title: 'Comparação ROA — 2025',
+        map_title: 'Mapa de Inteligência Territorial — Todos os Territórios',
+        map_subtitle: 'Clique num marcador para ver a pontuação RTI.',
+        workings_title: 'Matriz de Trabalhos 365 Dias — Junho 2025',
+        engine_panel_title: 'Painel de Cálculo de Motores',
+        audit_title: 'Registo de Auditoria (Últimos 20)', compare_title: 'Comparação Territorial',
+        record_obs: 'Registar Observação',
+        engine_rti: 'RTI — Índice Territorial Regenerativo', engine_tars: 'TARS — Risco de Anomalia Territorial',
+        engine_reg: 'REG — Capacidade Regenerativa', engine_bsep: 'Inteligência Cisne Negro',
+        engine_caii: 'CAII — Inteligência de Ativos Comunitários', engine_budget: 'Inteligência Orçamental — Desconto Futuro',
+        today_title: 'Hoje — 16 de Junho, 2025', current_conditions: 'Condições Atuais',
+        cond_temp: 'Temperatura', cond_humid: 'Humidade', cond_wind: 'Vento', cond_fire: 'Risco de Incêndio',
+        obs_type: 'Tipo de Observação', obs_date: 'Data', obs_desc: 'Descrição',
+        obs_desc_placeholder: 'Descreva o que observou hoje...',
+        obs_buffer: 'Zona tampão limpa', obs_paths: 'Caminhos acessíveis',
+        obs_ignition: 'Sem risco de ignição', obs_photo: 'Foto (opcional)',
+        logout: 'Sair', submit_obs: 'Enviar Observação',
+        export_pdf: '📄 Relatório Territorial (PDF)', export_csv: '📊 Exportar CSV',
+        loading: 'Carregando dados territoriais...',
+        th_question: 'Pergunta Executiva', th_signal: 'Sinal ao Vivo', th_status: 'Estado', th_action: 'Ação',
+        fnav_daily: 'Trabalhos Diários', fnav_data: 'Entrada de Dados', fnav_expenses: 'Despesas',
+        fnav_health: 'Saúde do Olival', fnav_alerts: 'Alertas',
     },
 };
 
 function setLanguage(lang) {
     const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
     localStorage.setItem('roatis_lang', lang);
+
     // Update nav tabs
     document.querySelectorAll('.nav-tab').forEach(tab => {
         const key = tab.dataset.view;
         if (t[key]) tab.textContent = t[key];
     });
-    // Update other translatable elements
+
+    // Update ALL elements with data-i18n attribute
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) el.textContent = t[key];
+    });
+
+    // Update placeholders
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (t[key]) el.placeholder = t[key];
+    });
+
+    // Update buttons without data-i18n
     const logout = document.getElementById('btn-logout');
     if (logout) logout.textContent = t.logout;
     const submitObs = document.getElementById('btn-submit-obs');
@@ -1209,8 +1347,15 @@ function setLanguage(lang) {
     if (csvBtn) csvBtn.textContent = t.export_csv;
     const loadingText = document.querySelector('.loading-text');
     if (loadingText) loadingText.textContent = t.loading;
-    const compareTitle = document.querySelector('.compare-title');
-    if (compareTitle) compareTitle.textContent = t.compare_title;
+
+    // Update command table headers
+    const ths = document.querySelectorAll('.command-table thead th');
+    if (ths.length >= 4) {
+        ths[0].textContent = t.th_question;
+        ths[1].textContent = t.th_signal;
+        ths[2].textContent = t.th_status;
+        ths[3].textContent = t.th_action;
+    }
 }
 
 // Init language

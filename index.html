@@ -121,25 +121,25 @@
             <!-- Top KPI Row -->
             <div class="kpi-row">
                 <div class="kpi-card" id="kpi-rti">
-                    <div class="kpi-label">Regenerative Territorial Index</div>
+                    <div class="kpi-label" data-i18n="kpi_rti">Regenerative Territorial Index</div>
                     <div class="kpi-value good" id="kpi-rti-value">--</div>
                     <div class="kpi-trend" id="kpi-rti-trend"></div>
                     <div class="kpi-confidence" id="kpi-rti-conf"></div>
                 </div>
                 <div class="kpi-card" id="kpi-tars">
-                    <div class="kpi-label">TARS — Anomaly Risk Score</div>
+                    <div class="kpi-label" data-i18n="kpi_tars">TARS — Anomaly Risk Score</div>
                     <div class="kpi-value warning" id="kpi-tars-value">--</div>
                     <div class="kpi-trend" id="kpi-tars-trend"></div>
                     <div class="kpi-confidence" id="kpi-tars-conf"></div>
                 </div>
                 <div class="kpi-card" id="kpi-bsep">
-                    <div class="kpi-label">Black Swan Exposure</div>
+                    <div class="kpi-label" data-i18n="kpi_bsep">Black Swan Exposure</div>
                     <div class="kpi-value alert" id="kpi-bsep-value">--</div>
                     <div class="kpi-trend" id="kpi-bsep-trend"></div>
                     <div class="kpi-confidence" id="kpi-bsep-conf"></div>
                 </div>
                 <div class="kpi-card" id="kpi-budget">
-                    <div class="kpi-label">Future Sustainability Discounting</div>
+                    <div class="kpi-label" data-i18n="kpi_budget">Future Sustainability Discounting</div>
                     <div class="kpi-value warning" id="kpi-budget-value">--</div>
                     <div class="kpi-trend" id="kpi-budget-trend"></div>
                     <div class="kpi-confidence" id="kpi-budget-conf"></div>
@@ -148,14 +148,14 @@
 
             <!-- Command Center -->
             <div class="panel command-panel">
-                <h2 class="panel-title">Executive Command Center</h2>
+                <h2 class="panel-title" data-i18n="command_center">Executive Command Center</h2>
                 <table class="command-table">
                     <thead>
                         <tr>
-                            <th>Executive Question</th>
-                            <th>Live Signal</th>
-                            <th>Status</th>
-                            <th>Action</th>
+                            <th data-i18n="th_question">Executive Question</th>
+                            <th data-i18n="th_signal">Live Signal</th>
+                            <th data-i18n="th_status">Status</th>
+                            <th data-i18n="th_action">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -196,11 +196,11 @@
             <!-- Two column: Chart + Priority Board -->
             <div class="two-col">
                 <div class="panel">
-                    <h2 class="panel-title">Territorial Health — 60-Year Trajectory</h2>
+                    <h2 class="panel-title" data-i18n="trajectory_title">Territorial Health — 60-Year Trajectory</h2>
                     <canvas id="trajectoryChart"></canvas>
                 </div>
                 <div class="panel">
-                    <h2 class="panel-title">Executive Priority Board</h2>
+                    <h2 class="panel-title" data-i18n="priority_board">Executive Priority Board</h2>
                     <div class="priority-list">
                         <div class="priority-item critical">
                             <span class="priority-rank">1</span>
@@ -256,7 +256,7 @@
 
             <!-- ROA Comparison -->
             <div class="panel">
-                <h2 class="panel-title">Multi-ROA Comparison — 2025 Snapshot</h2>
+                <h2 class="panel-title" data-i18n="comparison_title">Multi-ROA Comparison — 2025 Snapshot</h2>
                 <canvas id="roaComparisonChart"></canvas>
             </div>
 
@@ -275,7 +275,7 @@
 
             <!-- Audit Log (Authority only) -->
             <div class="panel audit-panel" id="audit-panel" style="margin-top:20px;">
-                <h3 class="section-title">Audit Log (Last 20 events)</h3>
+                <h3 class="section-title" data-i18n="audit_title">Audit Log (Last 20 events)</h3>
                 <table class="audit-table">
                     <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Detail</th></tr></thead>
                     <tbody id="audit-log-body"></tbody>
@@ -288,8 +288,8 @@
     <div id="view-map" class="view">
         <div class="map-layout">
             <div class="map-header">
-                <h2>Territorial Intelligence Map — All ROA Territories</h2>
-                <p class="map-subtitle">Click a territory marker to view its RTI score and navigate to its dashboard.</p>
+                <h2 data-i18n="map_title">Territorial Intelligence Map — All ROA Territories</h2>
+                <p class="map-subtitle" data-i18n="map_subtitle">Click a territory marker to view its RTI score and navigate to its dashboard.</p>
             </div>
             <div id="territory-map" class="territory-map"></div>
             <div class="map-legend-bar">
@@ -311,11 +311,11 @@
                     <p>Sella, Achaea • 7.5 ha • 1,230 trees</p>
                 </div>
                 <nav class="farmer-nav">
-                    <a href="#" class="farmer-nav-item active">Daily Workings</a>
-                    <a href="#" class="farmer-nav-item">Data Entry</a>
-                    <a href="#" class="farmer-nav-item">Expenses</a>
-                    <a href="#" class="farmer-nav-item">My Grove Health</a>
-                    <a href="#" class="farmer-nav-item">Alerts</a>
+                    <a href="#" class="farmer-nav-item active" data-i18n="fnav_daily">Daily Workings</a>
+                    <a href="#" class="farmer-nav-item" data-i18n="fnav_data">Data Entry</a>
+                    <a href="#" class="farmer-nav-item" data-i18n="fnav_expenses">Expenses</a>
+                    <a href="#" class="farmer-nav-item" data-i18n="fnav_health">My Grove Health</a>
+                    <a href="#" class="farmer-nav-item" data-i18n="fnav_alerts">Alerts</a>
                 </nav>
                 <div class="farmer-stats">
                     <h4>Quick Stats</h4>
@@ -330,7 +330,7 @@
 
             <!-- Main Content -->
             <main class="farmer-main">
-                <h2>365-Day Workings Matrix — June 2025</h2>
+                <h2 data-i18n="workings_title">365-Day Workings Matrix — June 2025</h2>
                 <div class="calendar-controls">
                     <button class="cal-btn">← May</button>
                     <span class="cal-month">June 2025</span>
@@ -387,7 +387,7 @@
 
                 <!-- Today's Detail -->
                 <div class="today-detail">
-                    <h3>Today — June 16, 2025</h3>
+                    <h3 data-i18n="today_title">Today — June 16, 2025</h3>
                     <div class="today-card">
                         <div class="today-task-main">
                             <span class="task-badge fire">HIGH PRIORITY</span>
@@ -395,19 +395,19 @@
                             <p>Inspect fire buffer zones around grove perimeter. Check for dry vegetation, clear access paths. Record observations below.</p>
                         </div>
                         <div class="today-conditions">
-                            <h5>Current Conditions</h5>
+                            <h5 data-i18n="current_conditions">Current Conditions</h5>
                             <div class="condition-grid">
-                                <div><span class="cond-label">Temperature</span><span class="cond-value">34°C</span></div>
-                                <div><span class="cond-label">Humidity</span><span class="cond-value">28%</span></div>
-                                <div><span class="cond-label">Wind</span><span class="cond-value">22 km/h NW</span></div>
-                                <div><span class="cond-label">Fire Risk</span><span class="cond-value alert-text">HIGH</span></div>
+                                <div><span class="cond-label" data-i18n="cond_temp">Temperature</span><span class="cond-value">34°C</span></div>
+                                <div><span class="cond-label" data-i18n="cond_humid">Humidity</span><span class="cond-value">28%</span></div>
+                                <div><span class="cond-label" data-i18n="cond_wind">Wind</span><span class="cond-value">22 km/h NW</span></div>
+                                <div><span class="cond-label" data-i18n="cond_fire">Fire Risk</span><span class="cond-value alert-text">HIGH</span></div>
                             </div>
                         </div>
                         <div class="today-observation">
-                            <h5>Record Observation</h5>
+                            <h5 data-i18n="record_obs">Record Observation</h5>
                             <div class="obs-form">
                                 <div class="obs-form-row">
-                                    <label class="obs-label">Observation Type</label>
+                                    <label class="obs-label" data-i18n="obs_type">Observation Type</label>
                                     <select id="obs-type" class="obs-select">
                                         <option value="fire_buffer">Fire Buffer Patrol</option>
                                         <option value="pest_monitoring">Pest Monitoring</option>
@@ -419,21 +419,21 @@
                                     </select>
                                 </div>
                                 <div class="obs-form-row">
-                                    <label class="obs-label">Date</label>
+                                    <label class="obs-label" data-i18n="obs_date">Date</label>
                                     <input type="date" id="obs-date" class="obs-input" />
                                 </div>
                                 <div class="obs-form-row">
-                                    <label class="obs-label">Description</label>
-                                    <textarea id="obs-description" placeholder="Describe what you observed today..." rows="3"></textarea>
+                                    <label class="obs-label" data-i18n="obs_desc">Description</label>
+                                    <textarea id="obs-description" data-i18n-placeholder="obs_desc_placeholder" placeholder="Describe what you observed today..." rows="3"></textarea>
                                 </div>
                                 <div class="obs-actions">
-                                    <label class="obs-check"><input type="checkbox" id="obs-buffer"> Buffer zone clear</label>
-                                    <label class="obs-check"><input type="checkbox" id="obs-paths"> Access paths passable</label>
-                                    <label class="obs-check"><input type="checkbox" id="obs-ignition"> No ignition risk detected</label>
+                                    <label class="obs-check"><input type="checkbox" id="obs-buffer"> <span data-i18n="obs_buffer">Buffer zone clear</span></label>
+                                    <label class="obs-check"><input type="checkbox" id="obs-paths"> <span data-i18n="obs_paths">Access paths passable</span></label>
+                                    <label class="obs-check"><input type="checkbox" id="obs-ignition"> <span data-i18n="obs_ignition">No ignition risk detected</span></label>
                                 </div>
                             </div>
                             <div class="obs-form-row">
-                                <label class="obs-label">Photo (optional)</label>
+                                <label class="obs-label" data-i18n="obs_photo">Photo (optional)</label>
                                 <input type="file" id="obs-photo" accept="image/*" class="obs-input obs-file-input" />
                                 <img id="obs-photo-preview" class="obs-photo-preview" style="display:none" />
                             </div>
@@ -481,7 +481,7 @@
     <div id="view-engines" class="view">
         <div class="engine-layout">
             <div class="engine-header">
-                <h2>Intelligence Engine Computation Panel</h2>
+                <h2 data-i18n="engine_panel_title">Intelligence Engine Computation Panel</h2>
                 <div class="engine-controls">
                     <select class="engine-select">
                         <option value="elysian">ROA Elysian EVOO — 2025</option>
@@ -503,7 +503,7 @@
                 <!-- RTI Engine -->
                 <div class="engine-card">
                     <div class="engine-card-header">
-                        <h3>RTI — Regenerative Territorial Index</h3>
+                        <h3 data-i18n="engine_rti">RTI — Regenerative Territorial Index</h3>
                         <span class="engine-status active">ACTIVE</span>
                     </div>
                     <div class="engine-output">
@@ -524,7 +524,7 @@
                 <!-- TARS Engine -->
                 <div class="engine-card">
                     <div class="engine-card-header">
-                        <h3>TARS — Territorial Anomaly Risk</h3>
+                        <h3 data-i18n="engine_tars">TARS — Territorial Anomaly Risk</h3>
                         <span class="engine-status active">ACTIVE</span>
                     </div>
                     <div class="engine-output">
@@ -545,7 +545,7 @@
                 <!-- REG Engine -->
                 <div class="engine-card">
                     <div class="engine-card-header">
-                        <h3>REG — Regenerative Capacity</h3>
+                        <h3 data-i18n="engine_reg">REG — Regenerative Capacity</h3>
                         <span class="engine-status active">ACTIVE</span>
                     </div>
                     <div class="engine-output">
@@ -566,7 +566,7 @@
                 <!-- Black Swan Engine -->
                 <div class="engine-card alert-card">
                     <div class="engine-card-header">
-                        <h3>Black Swan Intelligence</h3>
+                        <h3 data-i18n="engine_bsep">Black Swan Intelligence</h3>
                         <span class="engine-status emergency">EMERGENCY</span>
                     </div>
                     <div class="engine-output">
@@ -587,7 +587,7 @@
                 <!-- CAII Engine -->
                 <div class="engine-card">
                     <div class="engine-card-header">
-                        <h3>CAII — Community Asset Intelligence</h3>
+                        <h3 data-i18n="engine_caii">CAII — Community Asset Intelligence</h3>
                         <span class="engine-status active">ACTIVE</span>
                     </div>
                     <div class="engine-output">
@@ -608,7 +608,7 @@
                 <!-- Budget Engine -->
                 <div class="engine-card">
                     <div class="engine-card-header">
-                        <h3>Budget Intelligence — Future Discounting</h3>
+                        <h3 data-i18n="engine_budget">Budget Intelligence — Future Discounting</h3>
                         <span class="engine-status active">ACTIVE</span>
                     </div>
                     <div class="engine-output">
