@@ -1,5 +1,114 @@
 // ===== ROA-TIS Frontend — Stage 3: Live Interactive Dashboard =====
 const API_BASE = 'http://127.0.0.1:5000/api';
+let DEMO_MODE = false; // true when API is unreachable (e.g. GitHub Pages)
+
+// ===== DEMO DATA (used when API is unreachable) =====
+const DEMO_USERS = {
+    authority: { username: 'authority', display_name: 'Maria K.', role: 'authority', territory_id: null },
+    farmer: { username: 'farmer', display_name: 'Nikos P.', role: 'farmer', territory_id: 'elysian' },
+    investor: { username: 'investor', display_name: 'Investor View', role: 'investor', territory_id: null },
+    admin: { username: 'admin', display_name: 'Admin', role: 'authority', territory_id: null },
+};
+
+const DEMO_DASHBOARD = {
+    kpis: { rti: 59.19, tars: 6.4, bsep: 81.8, budget_gap: 199.9 },
+    prev_kpis: { rti: 55.0, tars: 7.0, bsep: 78.0, budget_gap: 185.0 },
+    command_center: [
+        { question: 'Where are we?', signal: '59.19 — RTI Composite', status: 'Transitional', action: 'Open Command →' },
+        { question: 'What is deteriorating?', signal: 'Control Center bottleneck', status: 'Insufficient Data', action: 'Review Actions →' },
+        { question: 'What is improving?', signal: 'Fire buffer & early warning', status: 'PASS', action: 'Open Investment →' },
+        { question: 'What should we do next?', signal: 'Review Control Center bottleneck', status: 'Insufficient Data', action: 'Prioritize →' },
+        { question: 'What must be escalated now?', signal: 'BSEP Score: 81.8', status: 'Emergency Escalation', action: 'Escalate →' },
+    ],
+    priorities: [
+        { domain: 'Budget', signal: 'Severe discounting — €199.9M gap', score: 100 },
+        { domain: 'Command', signal: 'Review Control Center bottleneck', score: 100 },
+        { domain: 'Investment', signal: 'Fire buffer and early warning network', score: 80 },
+        { domain: 'Scientific Audit', signal: 'Strengthen external validation', score: 80 },
+        { domain: 'Control', signal: 'Stabilize lever propagation', score: 60 },
+        { domain: 'Futures', signal: 'Compare temporal burden — Forward Heavy', score: 60 },
+    ],
+};
+
+const DEMO_TRAJECTORY = {
+    labels: ['1965', '1975', '1985', '1995', '2005', '2015', '2025'],
+    stewardship_capacity: [95, 90, 85, 70, 60, 55, 88],
+    ecological_equilibrium: [90, 85, 80, 65, 55, 50, 92],
+    wildlife_balance: [88, 82, 75, 60, 50, 45, 82],
+    soil_organic_matter: [85, 80, 70, 55, 45, 40, 80],
+    population_index: [92, 88, 78, 62, 48, 38, 90],
+};
+
+const DEMO_COMPARISON = [
+    { territory_id: 'elysian', name: 'Elysian EVOO', rti: 59.19 },
+    { territory_id: 'sella', name: 'Sella', rti: 62.5 },
+    { territory_id: 'kastritsi', name: 'Kastritsi', rti: 58.3 },
+    { territory_id: 'wgreece', name: 'Western Greece', rti: 55.8 },
+    { territory_id: 'chalandritsa', name: 'Chalandritsa', rti: 61.2 },
+    { territory_id: 'messinia', name: 'Messinia', rti: 64.7 },
+    { territory_id: 'crete', name: 'Crete', rti: 67.1 },
+    { territory_id: 'andalusia', name: 'Andalusia', rti: 71.4 },
+    { territory_id: 'tuscany', name: 'Tuscany', rti: 73.8 },
+    { territory_id: 'alentejo', name: 'Alentejo', rti: 60.5 },
+];
+
+const DEMO_ENGINES = {
+    rti: { score: 59.19, confidence: 'A', stewardship_capacity: 88, ecological_literacy: 92, wildlife_balance: 82, pollinator_index: 90, soil_organic_matter: 3.8, habitat_connectivity: 86 },
+    tars: { score: 6.4, wildfire_events: 1, flood_events: 1, pest_events: 1, drought_days: 38, heatwave_days: 22, years_since_event: 0, status: 'MONITOR' },
+    opci: { score: 78.6, productive_pct: 68, tree_vitality: 92, avg_trunk_perimeter: 298, yield_per_tree: 4.2, regenerative_inputs: 31, organic_certified: 100 },
+    bsep: { score: 81.8, categories: 'CS / RTC / II', escalation_level: 'Emergency', recovery_target_years: 15, current_recovery_pct: 100, human_capital_risk: 'HIGH', succession_plan: 'Unknown' },
+    caii: { score: 61.3, community_governance: 49.3, human_capital: 50.1, social_collaboration: 50.4, territorial_intelligence: 43.1, ai_assisted_ti: 40.8, asset_optimization: 61.3, triggered_missions: 7 },
+    fsd: { budget_gap: 199900000, budget_ratio: 0.625, budget_scenario: 'Ecological Recovery', budget_urgency: 5, budget_scientific_need: 259900000 },
+};
+
+const DEMO_FARM = {
+    farm_id: 'farm-elysian', name: 'Elysian EVOO', territory_id: 'elysian',
+    area_ha: 7.5, total_trees: 1230, altitude_m: 320,
+    production: { total_kg: 6500, oil_liters: 1632, extraction_rate: 23.0, quality_score: 80.9, acidity: 0.18, carbon_stored_tco2: 238 },
+};
+
+const DEMO_WORKINGS = [
+    { day: 1, task_type: 'irrigation', description: 'Irrigation check' },
+    { day: 2, task_type: 'pruning', description: 'Summer pruning' },
+    { day: 3, task_type: 'pruning', description: 'Summer pruning' },
+    { day: 4, task_type: 'monitoring', description: 'Pest monitoring' },
+    { day: 5, task_type: 'soil', description: 'Soil moisture check' },
+    { day: 8, task_type: 'irrigation', description: 'Irrigation cycle' },
+    { day: 9, task_type: 'monitoring', description: 'Olive fly trap check' },
+    { day: 10, task_type: 'soil', description: 'Weed management' },
+    { day: 16, task_type: 'fire', description: 'Fire risk patrol' },
+    { day: 17, task_type: 'monitoring', description: 'Growth monitoring' },
+];
+
+const DEMO_TERRITORIES = [
+    { territory_id: 'elysian', name: 'Elysian EVOO', lat: 38.22, lon: 21.73 },
+    { territory_id: 'sella', name: 'Sella', lat: 38.18, lon: 21.78 },
+    { territory_id: 'kastritsi', name: 'Kastritsi', lat: 38.28, lon: 21.76 },
+    { territory_id: 'wgreece', name: 'Western Greece', lat: 38.25, lon: 21.74 },
+    { territory_id: 'chalandritsa', name: 'Chalandritsa', lat: 38.15, lon: 21.80 },
+    { territory_id: 'messinia', name: 'Messinia', lat: 37.05, lon: 21.93 },
+    { territory_id: 'crete', name: 'Crete', lat: 35.24, lon: 24.47 },
+    { territory_id: 'andalusia', name: 'Andalusia', lat: 37.38, lon: -5.98 },
+    { territory_id: 'tuscany', name: 'Tuscany', lat: 43.77, lon: 11.25 },
+    { territory_id: 'alentejo', name: 'Alentejo', lat: 38.57, lon: -7.91 },
+];
+
+// Check API availability — sets DEMO_MODE
+async function checkAPIAvailability() {
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3000);
+        const res = await fetch(`${API_BASE}/health`, { signal: controller.signal });
+        clearTimeout(timeout);
+        DEMO_MODE = !res.ok;
+    } catch {
+        DEMO_MODE = true;
+    }
+    if (DEMO_MODE) {
+        console.log('ROA-TIS: API unreachable — running in DEMO MODE (static data)');
+    }
+    return DEMO_MODE;
+}
 
 // ===== AUTH & RBAC =====
 let currentUser = JSON.parse(localStorage.getItem('roatis_user') || 'null');
@@ -64,6 +173,21 @@ function showApp() {
 async function doLogin(username, password) {
     const errorEl = document.getElementById('login-error');
     errorEl.textContent = '';
+
+    // DEMO MODE: bypass API, use static user data
+    if (DEMO_MODE) {
+        const demoUser = DEMO_USERS[username];
+        if (demoUser) {
+            currentUser = demoUser;
+            localStorage.setItem('roatis_user', JSON.stringify(demoUser));
+            showApp();
+            loadAllData();
+        } else {
+            errorEl.textContent = 'Demo mode: use authority, farmer, or investor';
+        }
+        return;
+    }
+
     try {
         const res = await fetch(`${API_BASE}/auth/login`, {
             method: 'POST',
@@ -129,6 +253,20 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
 
 // ===== DATA FETCHING =====
 async function fetchJSON(endpoint) {
+    // In DEMO MODE, return static demo data based on endpoint pattern
+    if (DEMO_MODE) {
+        if (endpoint.includes('/dashboard/')) return DEMO_DASHBOARD;
+        if (endpoint.includes('/trajectory/')) return DEMO_TRAJECTORY;
+        if (endpoint.includes('/comparison/')) return DEMO_COMPARISON;
+        if (endpoint.includes('/engines/')) return DEMO_ENGINES;
+        if (endpoint.includes('/observations')) return [];
+        if (endpoint.includes('/workings')) return DEMO_WORKINGS;
+        if (endpoint.includes('/farm/')) return DEMO_FARM;
+        if (endpoint.includes('/territories/scores')) return DEMO_COMPARISON;
+        if (endpoint.includes('/territories')) return DEMO_TERRITORIES;
+        if (endpoint.includes('/audit-log')) return [];
+        return {};
+    }
     const res = await fetch(`${API_BASE}${endpoint}`);
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     return res.json();
@@ -575,6 +713,14 @@ function renderRoadmapChart() {
 document.getElementById('btn-submit-obs')?.addEventListener('click', async (e) => {
     e.preventDefault();
     const btn = e.target;
+
+    // DEMO MODE: show feedback, don't call API
+    if (DEMO_MODE) {
+        showFeedback('Demo mode — observation recorded locally (not saved to server).', 'success');
+        toast('Demo: Observation recorded', 'success');
+        return;
+    }
+
     const obsType = document.getElementById('obs-type')?.value || 'general';
     const obsDate = document.getElementById('obs-date')?.value || new Date().toISOString().slice(0, 10);
     const description = document.getElementById('obs-description')?.value || '';
@@ -684,6 +830,18 @@ document.querySelector('.btn-compute')?.addEventListener('click', async (e) => {
     const btn = e.target;
     btn.textContent = '\u21BB Running all engines...';
     btn.style.opacity = '0.7';
+
+    // DEMO MODE: simulate recompute
+    if (DEMO_MODE) {
+        setTimeout(() => {
+            btn.textContent = '✓ Engines recomputed (demo)';
+            btn.style.opacity = '1';
+            toast('Demo: Engines recomputed', 'success');
+            setTimeout(() => { btn.textContent = '\u21BB Recompute All Engines'; btn.style.background = '#4ecdc4'; }, 2000);
+        }, 1000);
+        return;
+    }
+
     try {
         const recalcRes = await fetch(`${API_BASE}/recalculate/${TERRITORY}/${YEAR}`, { method: 'POST' });
         if (recalcRes.status === 404) {
@@ -713,9 +871,23 @@ document.querySelector('.btn-compute')?.addEventListener('click', async (e) => {
 });
 
 // ===== SET DEFAULT DATE & LOAD =====
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const dateInput = document.getElementById('obs-date');
     if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
+
+    // Check if API is available (sets DEMO_MODE)
+    await checkAPIAvailability();
+
+    // Show demo banner if in demo mode
+    if (DEMO_MODE) {
+        const banner = document.getElementById('alert-banner');
+        const bannerText = document.getElementById('alert-banner-text');
+        if (banner && bannerText) {
+            bannerText.innerHTML = '<strong>DEMO MODE</strong> — Running with static data. Connect to API server for live data.';
+            banner.style.display = 'flex';
+            banner.style.background = 'linear-gradient(90deg, #2d3436 0%, #636e72 100%)';
+        }
+    }
 
     // Check if user is already logged in
     if (currentUser) {
@@ -938,23 +1110,26 @@ function initMap() {
     }).addTo(mapInstance);
 
     const year = document.getElementById('year-select')?.value || 2025;
-    fetchJSON(`/api/territories/scores/${year}`).then(data => {
+    fetchJSON(`/territories/scores/${year}`).then(data => {
         if (!data || !Array.isArray(data)) return;
         const bounds = [];
         data.forEach(t => {
-            if (t.latitude == null || t.longitude == null) return;
+            const lat = t.latitude || t.lat;
+            const lon = t.longitude || t.lon;
+            if (lat == null || lon == null) return;
             const rti = t.rti != null ? t.rti.toFixed(1) : '—';
             const color = t.rti >= 70 ? '#2ecc71' : t.rti >= 40 ? '#f7b731' : '#ff6b6b';
-            const marker = L.circleMarker([t.latitude, t.longitude], {
+            const tid = t.territory_id || t.id;
+            const marker = L.circleMarker([lat, lon], {
                 radius: 12, fillColor: color, color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.85
             }).addTo(mapInstance);
 
             marker.bindPopup(`
                 <div class="map-popup-title">${t.name}</div>
                 <div class="map-popup-score" style="color:${color}">RTI: ${rti}</div>
-                <span class="map-popup-btn" onclick="navigateToTerritory('${t.id}')">View Dashboard →</span>
+                <span class="map-popup-btn" onclick="navigateToTerritory('${tid}')">View Dashboard →</span>
             `);
-            bounds.push([t.latitude, t.longitude]);
+            bounds.push([lat, lon]);
         });
         if (bounds.length) mapInstance.fitBounds(bounds, { padding: [40, 40] });
     });
@@ -1136,6 +1311,8 @@ document.getElementById('obs-photo')?.addEventListener('change', (e) => {
 
 /* ===== #7 ALERT NOTIFICATIONS ===== */
 async function checkAlerts() {
+    // Don't override demo mode banner
+    if (DEMO_MODE) return;
     try {
         const scores = await fetchJSON(`/territories/scores/${YEAR}`);
         const emergencies = scores.filter(t => t.rti !== null && t.rti < 40);
